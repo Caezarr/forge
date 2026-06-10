@@ -19,32 +19,51 @@ function defaultAttributes() {
   ];
 }
 
-function dailyTarget(skill: SkillLevel): { label: string; reps: number } {
+function dailyTarget(skill: SkillLevel): { label: string; value: number; unit: string } {
   const current = skill.currentLevel;
   const goal = skill.goal;
-  const weeklyIncrease = Math.max(1, Math.ceil((goal - current) / 12));
-  const todayTarget = Math.min(current + weeklyIncrease, goal);
 
   switch (skill.id) {
-    case 'pushups':
-      return { label: `Pushups — ${todayTarget} reps`, reps: todayTarget };
-    case 'pullups':
+    case 'pushups': {
+      const weeklyInc = Math.max(1, Math.ceil((goal - current) / 12));
+      const target = Math.min(current + weeklyInc, goal);
+      return { label: `Pushups — ${target} reps`, value: target, unit: 'reps' };
+    }
+    case 'pullups': {
+      const weeklyInc = Math.max(1, Math.ceil((goal - current) / 12));
+      const target = Math.min(current + weeklyInc, goal);
       if (skill.assisted && current < 5) {
-        return { label: `Pull-ups — ${todayTarget} assisted`, reps: todayTarget };
+        return { label: `Pull-ups — ${target} assisted`, value: target, unit: 'reps' };
       }
-      return { label: `Pull-ups — ${todayTarget} strict`, reps: todayTarget };
-    case 'dips':
-      return { label: `Dips — ${todayTarget} reps`, reps: todayTarget };
-    case 'running':
-      return { label: `Run ${todayTarget} min zone 2`, reps: todayTarget };
-    case 'deepwork':
-      return { label: `Deep work ${todayTarget} min`, reps: todayTarget };
-    case 'mobility':
-      return { label: `Mobility ${todayTarget} min`, reps: todayTarget };
-    case 'core':
-      return { label: `Core — ${todayTarget} reps`, reps: todayTarget };
+      return { label: `Pull-ups — ${target} strict`, value: target, unit: 'reps' };
+    }
+    case 'dips': {
+      const weeklyInc = Math.max(1, Math.ceil((goal - current) / 12));
+      const target = Math.min(current + weeklyInc, goal);
+      return { label: `Dips — ${target} reps`, value: target, unit: 'reps' };
+    }
+    case 'core': {
+      const weeklyInc = Math.max(1, Math.ceil((goal - current) / 12));
+      const target = Math.min(current + weeklyInc, goal);
+      return { label: `Core — ${target} reps`, value: target, unit: 'reps' };
+    }
+    case 'running': {
+      const vma = skill.estimatedVMA || current;
+      if (vma > 0) {
+        const zone2pace = Math.round(vma * 0.7);
+        return { label: `Run 30' @ ${zone2pace} km/h (Z2)`, value: 30, unit: 'min' };
+      }
+      return { label: 'Run 30 min easy', value: 30, unit: 'min' };
+    }
+    case 'deepwork': {
+      const target = Math.min(current + 15, goal);
+      return { label: `Deep work ${target} min`, value: target, unit: 'min' };
+    }
+    case 'mobility': {
+      return { label: `Mobility 15 min`, value: 15, unit: 'min' };
+    }
     default:
-      return { label: skill.id, reps: todayTarget };
+      return { label: skill.id, value: current, unit: skill.unit };
   }
 }
 
@@ -64,9 +83,9 @@ function generateQuests(onboarding: OnboardingData): Quest[] {
       type: 'main',
       xp,
       done: false,
-      target: target.reps,
+      target: target.value,
       progress: 0,
-      unit: isCardio || skill.id === 'deepwork' || skill.id === 'mobility' ? 'min' : 'reps',
+      unit: target.unit,
     });
   }
 

@@ -4,12 +4,17 @@ export type Poison = 'instagram' | 'tiktok' | 'shorts' | 'alcohol' | 'junkfood' 
 
 export type SkillId = 'pushups' | 'pullups' | 'dips' | 'running' | 'deepwork' | 'mobility' | 'core';
 
+export type RunningTestType = 'vma' | '5k' | '10k' | 'cooper' | 'none';
+
 export interface SkillLevel {
   id: SkillId;
   currentLevel: number;
-  assisted?: boolean; // for pullups
+  assisted?: boolean;
   goal: number;
   unit: string;
+  testType?: RunningTestType;
+  testValue?: string;
+  estimatedVMA?: number;
 }
 
 export interface OnboardingData {
