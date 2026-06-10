@@ -1,7 +1,8 @@
 {
-  "name": "forge",
+  "name": "forge-monk-mode",
   "version": "0.1.0",
-  "private": true,
+  "license": "MIT",
+  "description": "Open-source personal discipline protocol. Bodyweight progression, habit tracking, distraction blocking.",
   "scripts": {
     "dev": "next dev",
     "build": "next build",
