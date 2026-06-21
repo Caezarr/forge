@@ -2,6 +2,7 @@
 
 import { UserProfile } from '@/lib/types';
 import { getTodayLog } from '@/lib/store';
+import { hapticLight, hapticSuccess } from '@/lib/haptics';
 
 interface Props {
   profile: UserProfile;
@@ -75,7 +76,7 @@ export default function CleanView({ profile, onToggle }: Props) {
                 {cat.quests.map((q) => (
                   <button
                     key={q.id}
-                    onClick={() => onToggle(q.id)}
+                    onClick={() => { if (q.done) hapticLight(); else hapticSuccess(); onToggle(q.id); }}
                     className="flex items-center justify-between w-full py-1"
                   >
                     <div className="flex items-center gap-3">

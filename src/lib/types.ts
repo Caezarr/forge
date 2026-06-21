@@ -1,20 +1,30 @@
 export type Archetype = 'athlete' | 'builder' | 'monk' | 'operator';
 export type Intensity = 'balanced' | 'monk' | 'savage';
 export type Poison = 'instagram' | 'tiktok' | 'shorts' | 'alcohol' | 'junkfood' | 'porn' | 'nicotine' | 'soda';
+export type LifeDomainId = 'body' | 'mind' | 'career' | 'discipline';
 
-export type SkillId = 'pushups' | 'pullups' | 'dips' | 'running' | 'deepwork' | 'mobility' | 'core';
+export type SkillType = 'reps' | 'duration' | 'boolean' | 'numeric';
+export type SkillCategory = 'bodyweight' | 'cardio' | 'mental' | 'recovery' | 'custom';
+
+export type SkillId = string;
 
 export type RunningTestType = 'vma' | '5k' | '10k' | 'cooper' | 'none';
 
 export interface SkillLevel {
   id: SkillId;
+  name: string;
+  icon: string;
+  type: SkillType;
+  category: SkillCategory;
   currentLevel: number;
-  assisted?: boolean;
   goal: number;
   unit: string;
+  assisted?: boolean;
   testType?: RunningTestType;
   testValue?: string;
   estimatedVMA?: number;
+  sortOrder: number;
+  archived?: boolean;
 }
 
 export interface OnboardingData {
@@ -24,13 +34,31 @@ export interface OnboardingData {
   poisons: Poison[];
   dailyTimeBudget: number;
   name: string;
+  motivation?: string;
+  domains?: LifeDomainId[];
+}
+
+export interface QuestTemplate {
+  id: string;
+  skillId?: string | null;
+  label: string;
+  type: 'main' | 'side' | 'clean';
+  category?: 'body' | 'mind' | 'recovery' | 'identity' | 'custom';
+  xp: number;
+  targetType: SkillType;
+  defaultTarget?: number;
+  unit?: string;
+  icon?: string;
+  active: boolean;
+  sortOrder: number;
 }
 
 export interface Quest {
   id: string;
+  templateId?: string | null;
   label: string;
   type: 'main' | 'side' | 'clean';
-  category?: 'body' | 'mind' | 'recovery' | 'identity';
+  category?: string;
   xp: number;
   done: boolean;
   target?: number;
@@ -39,6 +67,7 @@ export interface Quest {
 }
 
 export interface DayLog {
+  id: string;
   date: string;
   quests: Quest[];
   monkScore: number;
@@ -59,6 +88,7 @@ export interface Attribute {
 
 export interface UserProfile {
   onboarding: OnboardingData;
+  questTemplates: QuestTemplate[];
   currentDay: number;
   currentStreak: number;
   bestStreak: number;
@@ -69,3 +99,25 @@ export interface UserProfile {
   focusLockActive: boolean;
   unlockedApps: string[];
 }
+
+export const PRESET_SKILLS: Record<string, Omit<SkillLevel, 'currentLevel' | 'goal' | 'sortOrder'>> = {
+  pushups: { id: 'pushups', name: 'Push-ups', icon: '💪', type: 'reps', category: 'bodyweight', unit: 'reps' },
+  pullups: { id: 'pullups', name: 'Pull-ups', icon: '🏋️', type: 'reps', category: 'bodyweight', unit: 'reps' },
+  dips: { id: 'dips', name: 'Dips', icon: '🤸', type: 'reps', category: 'bodyweight', unit: 'reps' },
+  core: { id: 'core', name: 'Core', icon: '🎯', type: 'reps', category: 'bodyweight', unit: 'reps' },
+  running: { id: 'running', name: 'Running', icon: '👟', type: 'duration', category: 'cardio', unit: 'min' },
+  deepwork: { id: 'deepwork', name: 'Deep Work', icon: '🧠', type: 'duration', category: 'mental', unit: 'min' },
+  mobility: { id: 'mobility', name: 'Mobility', icon: '🧘', type: 'duration', category: 'recovery', unit: 'min' },
+  reading: { id: 'reading', name: 'Reading', icon: '📖', type: 'numeric', category: 'mental', unit: 'pages' },
+  meditation: { id: 'meditation', name: 'Meditation', icon: '🪷', type: 'duration', category: 'recovery', unit: 'min' },
+  journaling: { id: 'journaling', name: 'Journaling', icon: '✍️', type: 'boolean', category: 'mental', unit: '' },
+  shipping: { id: 'shipping', name: 'Daily Ship', icon: '🚀', type: 'boolean', category: 'custom', unit: '' },
+  learning: { id: 'learning', name: 'Learning', icon: '📚', type: 'duration', category: 'mental', unit: 'min' },
+};
+
+export const LIFE_DOMAINS: Record<LifeDomainId, { name: string; icon: string; description: string; tracks: string[] }> = {
+  body: { name: 'Body', icon: '🏃', description: 'Strength, endurance, physique', tracks: ['Bodyweight skills', 'Cardio', 'Mobility'] },
+  mind: { name: 'Mind', icon: '🧠', description: 'Focus, learning, mental clarity', tracks: ['Reading', 'Meditation', 'Deep focus'] },
+  career: { name: 'Career', icon: '🚀', description: 'Deep work, shipping, growth', tracks: ['Deep work sessions', 'Daily shipping', 'Learning'] },
+  discipline: { name: 'Discipline', icon: '🔥', description: 'Clean living, habits, recovery', tracks: ['Cut poisons', 'Sleep hygiene', 'Hydration'] },
+};

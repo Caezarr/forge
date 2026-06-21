@@ -76,7 +76,7 @@ export default function ProofView({ profile }: Props) {
         </div>
       </div>
 
-      <HeatmapGreen data={consistency} weeks={52} label="Life Consistency" />
+      <HeatmapGreen data={consistency} weeks={52} label="Life Consistency" logs={profile.logs} />
 
       <div className="bg-forge-surface border border-forge-border rounded-lg p-4 space-y-1">
         <StatBar label="Running" icon="🏃" pct={runPct} />

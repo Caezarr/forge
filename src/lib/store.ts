@@ -1,6 +1,9 @@
 'use client';
 
-import { UserProfile, Quest, DayLog, OnboardingData, SkillLevel } from './types';
+import { UserProfile, Quest, DayLog, OnboardingData, SkillLevel, QuestTemplate, PRESET_SKILLS } from './types';
+import { v4 as uuid } from 'uuid';
+import { scheduleSyncPush, markDirty } from './sync';
+import { computeTarget } from './progression';
 
 const STORAGE_KEY = 'forge_profile';
 
@@ -22,70 +25,191 @@ function defaultAttributes() {
 function dailyTarget(skill: SkillLevel): { label: string; value: number; unit: string } {
   const current = skill.currentLevel;
   const goal = skill.goal;
+  const name = skill.name || skill.id;
 
-  switch (skill.id) {
-    case 'pushups': {
-      const weeklyInc = Math.max(1, Math.ceil((goal - current) / 12));
-      const target = Math.min(current + weeklyInc, goal);
-      return { label: `Pushups — ${target} reps`, value: target, unit: 'reps' };
-    }
-    case 'pullups': {
-      const weeklyInc = Math.max(1, Math.ceil((goal - current) / 12));
-      const target = Math.min(current + weeklyInc, goal);
-      if (skill.assisted && current < 5) {
-        return { label: `Pull-ups — ${target} assisted`, value: target, unit: 'reps' };
-      }
-      return { label: `Pull-ups — ${target} strict`, value: target, unit: 'reps' };
-    }
-    case 'dips': {
-      const weeklyInc = Math.max(1, Math.ceil((goal - current) / 12));
-      const target = Math.min(current + weeklyInc, goal);
-      return { label: `Dips — ${target} reps`, value: target, unit: 'reps' };
-    }
-    case 'core': {
-      const weeklyInc = Math.max(1, Math.ceil((goal - current) / 12));
-      const target = Math.min(current + weeklyInc, goal);
-      return { label: `Core — ${target} reps`, value: target, unit: 'reps' };
-    }
-    case 'running': {
-      const vma = skill.estimatedVMA || current;
-      if (vma > 0) {
-        const zone2pace = Math.round(vma * 0.7);
-        return { label: `Run 30' @ ${zone2pace} km/h (Z2)`, value: 30, unit: 'min' };
-      }
-      return { label: 'Run 30 min easy', value: 30, unit: 'min' };
-    }
-    case 'deepwork': {
-      const target = Math.min(current + 15, goal);
-      return { label: `Deep work ${target} min`, value: target, unit: 'min' };
-    }
-    case 'mobility': {
-      return { label: `Mobility 15 min`, value: 15, unit: 'min' };
-    }
-    default:
-      return { label: skill.id, value: current, unit: skill.unit };
+  if (skill.type === 'boolean') {
+    return { label: name, value: 1, unit: '' };
   }
+
+  if (skill.category === 'bodyweight' || skill.type === 'reps') {
+    const weeklyInc = Math.max(1, Math.ceil((goal - current) / 12));
+    const target = Math.min(current + weeklyInc, goal);
+    const suffix = skill.id === 'pullups' && skill.assisted && current < 5 ? ' assisted' : '';
+    return { label: `${name} — ${target}${suffix} ${skill.unit}`, value: target, unit: skill.unit };
+  }
+
+  if (skill.id === 'running' && skill.category === 'cardio') {
+    const vma = skill.estimatedVMA || current;
+    if (vma > 0) {
+      const zone2pace = Math.round(vma * 0.7);
+      return { label: `Run 30' @ ${zone2pace} km/h (Z2)`, value: 30, unit: 'min' };
+    }
+    return { label: 'Run 30 min easy', value: 30, unit: 'min' };
+  }
+
+  if (skill.type === 'duration') {
+    const target = goal > 0 ? Math.min(current + 15, goal) : current || 30;
+    return { label: `${name} ${target} ${skill.unit}`, value: target, unit: skill.unit };
+  }
+
+  if (skill.type === 'numeric') {
+    const target = goal > 0 ? goal : current;
+    return { label: `${name} — ${target} ${skill.unit}`, value: target, unit: skill.unit };
+  }
+
+  return { label: name, value: current, unit: skill.unit };
 }
 
-function generateQuests(onboarding: OnboardingData): Quest[] {
+function migrateSkill(s: Record<string, unknown>, idx: number): SkillLevel {
+  const id = s.id as string;
+  const preset = PRESET_SKILLS[id];
+  return {
+    id,
+    name: (s.name as string) || preset?.name || id,
+    icon: (s.icon as string) || preset?.icon || '🎯',
+    type: (s.type as SkillLevel['type']) || preset?.type || 'reps',
+    category: (s.category as SkillLevel['category']) || preset?.category || 'custom',
+    currentLevel: (s.currentLevel as number) || 0,
+    goal: (s.goal as number) || 0,
+    unit: (s.unit as string) || preset?.unit || '',
+    assisted: s.assisted as boolean | undefined,
+    testType: s.testType as SkillLevel['testType'],
+    testValue: s.testValue as string | undefined,
+    estimatedVMA: s.estimatedVMA as number | undefined,
+    sortOrder: (s.sortOrder as number) ?? idx,
+    archived: (s.archived as boolean) ?? false,
+  };
+}
+
+function generateQuestsFromTemplates(templates: QuestTemplate[], skills?: SkillLevel[], logs?: DayLog[]): Quest[] {
+  const allLogs = logs || [];
+  return templates
+    .filter(t => t.active)
+    .sort((a, b) => a.sortOrder - b.sortOrder)
+    .map(t => {
+      let label = t.label;
+      let target = t.defaultTarget;
+      let unit = t.unit;
+
+      if (t.skillId && skills) {
+        const skill = skills.find(s => s.id === t.skillId);
+        if (skill) {
+          const prog = computeTarget({ skill, logs: allLogs, currentWeek: 1 });
+          label = prog.label;
+          target = prog.target;
+          unit = skill.unit;
+        }
+      }
+
+      return {
+        id: uuid(),
+        templateId: t.id,
+        label,
+        type: t.type,
+        category: t.category,
+        xp: t.xp,
+        done: false,
+        target,
+        progress: 0,
+        unit,
+      };
+    });
+}
+
+function generateDefaultTemplates(onboarding: OnboardingData): QuestTemplate[] {
+  const templates: QuestTemplate[] = [];
+  let order = 0;
+  const domains = new Set(onboarding.domains || []);
+  const skillIds = new Set(onboarding.skills.map(s => s.id));
+
+  // Main quests from skills
+  for (const skill of onboarding.skills) {
+    const target = dailyTarget(skill);
+    const isBodyweight = skill.category === 'bodyweight';
+    const isCardio = skill.category === 'cardio';
+    const isBoolean = skill.type === 'boolean';
+    const xp = isBoolean ? 40 : isBodyweight ? 80 : isCardio ? 90 : 120;
+
+    templates.push({
+      id: uuid(),
+      skillId: skill.id,
+      label: target.label,
+      type: isBoolean ? 'side' : 'main',
+      xp,
+      targetType: skill.type,
+      defaultTarget: target.value,
+      unit: target.unit,
+      icon: skill.icon,
+      active: true,
+      sortOrder: order++,
+    });
+  }
+
+  // Default quest if nothing configured
+  if (templates.filter(t => t.type === 'main').length === 0) {
+    templates.push({
+      id: uuid(), label: 'Deep work 60 min', type: 'main', xp: 120,
+      targetType: 'duration', defaultTarget: 60, unit: 'min', icon: '🧠', active: true, sortOrder: order++,
+    });
+  }
+
+  // Side quests — contextual to domains
+  if (!skillIds.has('reading')) {
+    templates.push({ id: uuid(), label: 'Read 20 pages', type: 'side', xp: 40, targetType: 'boolean', icon: '📖', active: true, sortOrder: order++ });
+  }
+  templates.push({ id: uuid(), label: 'Room reset', type: 'side', xp: 20, targetType: 'boolean', icon: '🏠', active: true, sortOrder: order++ });
+  if (domains.has('body') || domains.size === 0) {
+    templates.push({ id: uuid(), label: '8k steps', type: 'side', xp: 30, targetType: 'numeric', defaultTarget: 8000, unit: 'steps', icon: '👣', active: true, sortOrder: order++ });
+  }
+
+  // Clean quests — poisons
+  const poisonMap: Record<string, { label: string; category: 'body' | 'mind' | 'recovery' }> = {
+    alcohol: { label: 'No Alcohol', category: 'body' },
+    junkfood: { label: 'No Junk Food', category: 'body' },
+    nicotine: { label: 'No Nicotine', category: 'body' },
+    soda: { label: 'No Soda', category: 'body' },
+    porn: { label: 'No Porn', category: 'mind' },
+    instagram: { label: 'No Instagram', category: 'mind' },
+    tiktok: { label: 'No TikTok', category: 'mind' },
+    shorts: { label: 'No Shorts', category: 'mind' },
+  };
+
+  for (const poison of onboarding.poisons) {
+    const p = poisonMap[poison];
+    if (p) {
+      templates.push({
+        id: uuid(), label: p.label, type: 'clean', category: p.category, xp: 0,
+        targetType: 'boolean', active: true, sortOrder: order++,
+      });
+    }
+  }
+
+  // Recovery clean quests — always present
+  templates.push({ id: uuid(), label: 'No Phone in Bed', type: 'clean', category: 'recovery', xp: 0, targetType: 'boolean', active: true, sortOrder: order++ });
+  templates.push({ id: uuid(), label: 'Sleep Before 23:30', type: 'clean', category: 'recovery', xp: 0, targetType: 'boolean', active: true, sortOrder: order++ });
+  templates.push({ id: uuid(), label: '2L Water', type: 'clean', category: 'body', xp: 0, targetType: 'boolean', active: true, sortOrder: order++ });
+
+  return templates;
+}
+
+function generateQuests(onboarding: OnboardingData, templates?: QuestTemplate[], logs?: DayLog[]): Quest[] {
+  if (templates && templates.length > 0) {
+    return generateQuestsFromTemplates(templates, onboarding.skills, logs);
+  }
+
+  // Legacy path — no templates yet
   const quests: Quest[] = [];
   let id = 0;
 
   for (const skill of onboarding.skills) {
     const target = dailyTarget(skill);
-    const isBodyweight = ['pushups', 'pullups', 'dips', 'core'].includes(skill.id);
-    const isCardio = skill.id === 'running';
+    const isBodyweight = skill.category === 'bodyweight' || ['pushups', 'pullups', 'dips', 'core'].includes(skill.id);
+    const isCardio = skill.category === 'cardio' || skill.id === 'running';
     const xp = isBodyweight ? 80 : isCardio ? 90 : 120;
 
     quests.push({
-      id: `q${id++}`,
-      label: target.label,
-      type: 'main',
-      xp,
-      done: false,
-      target: target.value,
-      progress: 0,
-      unit: target.unit,
+      id: `q${id++}`, label: target.label, type: 'main', xp, done: false,
+      target: target.value, progress: 0, unit: target.unit,
     });
   }
 
@@ -97,29 +221,20 @@ function generateQuests(onboarding: OnboardingData): Quest[] {
   quests.push({ id: `q${id++}`, label: 'Room reset', type: 'side', xp: 20, done: false });
   quests.push({ id: `q${id++}`, label: '8k steps', type: 'side', xp: 30, done: false });
 
-  if (onboarding.poisons.includes('alcohol')) {
-    quests.push({ id: `q${id++}`, label: 'No Alcohol', type: 'clean', category: 'body', xp: 0, done: false });
-  }
-  if (onboarding.poisons.includes('junkfood')) {
-    quests.push({ id: `q${id++}`, label: 'No Junk Food', type: 'clean', category: 'body', xp: 0, done: false });
-  }
-  if (onboarding.poisons.includes('nicotine')) {
-    quests.push({ id: `q${id++}`, label: 'No Nicotine', type: 'clean', category: 'body', xp: 0, done: false });
-  }
-  if (onboarding.poisons.includes('porn')) {
-    quests.push({ id: `q${id++}`, label: 'No Porn', type: 'clean', category: 'mind', xp: 0, done: false });
-  }
-  if (onboarding.poisons.includes('instagram')) {
-    quests.push({ id: `q${id++}`, label: 'No Instagram', type: 'clean', category: 'mind', xp: 0, done: false });
-  }
-  if (onboarding.poisons.includes('tiktok')) {
-    quests.push({ id: `q${id++}`, label: 'No TikTok', type: 'clean', category: 'mind', xp: 0, done: false });
-  }
-  if (onboarding.poisons.includes('shorts')) {
-    quests.push({ id: `q${id++}`, label: 'No Shorts', type: 'clean', category: 'mind', xp: 0, done: false });
-  }
-  if (onboarding.poisons.includes('soda')) {
-    quests.push({ id: `q${id++}`, label: 'No Soda', type: 'clean', category: 'body', xp: 0, done: false });
+  const poisonMap: Record<string, { label: string; category: 'body' | 'mind' }> = {
+    alcohol: { label: 'No Alcohol', category: 'body' },
+    junkfood: { label: 'No Junk Food', category: 'body' },
+    nicotine: { label: 'No Nicotine', category: 'body' },
+    soda: { label: 'No Soda', category: 'body' },
+    porn: { label: 'No Porn', category: 'mind' },
+    instagram: { label: 'No Instagram', category: 'mind' },
+    tiktok: { label: 'No TikTok', category: 'mind' },
+    shorts: { label: 'No Shorts', category: 'mind' },
+  };
+
+  for (const poison of onboarding.poisons) {
+    const p = poisonMap[poison];
+    if (p) quests.push({ id: `q${id++}`, label: p.label, type: 'clean', category: p.category, xp: 0, done: false });
   }
 
   quests.push({ id: `q${id++}`, label: 'No Phone in Bed', type: 'clean', category: 'recovery', xp: 0, done: false });
@@ -159,12 +274,36 @@ function computeDayScores(quests: Quest[]) {
   return { monkScore, xpEarned, cleanMultiplier, bodyIntegrity, focusIntegrity, recoveryScore };
 }
 
+function migrateProfile(raw: Record<string, unknown>): UserProfile {
+  const profile = raw as unknown as UserProfile;
+
+  // Migrate skills to new format
+  if (profile.onboarding?.skills) {
+    profile.onboarding.skills = profile.onboarding.skills.map((s, i) => migrateSkill(s as unknown as Record<string, unknown>, i));
+  }
+
+  // Add questTemplates if missing
+  if (!profile.questTemplates) {
+    profile.questTemplates = generateDefaultTemplates(profile.onboarding);
+  }
+
+  // Add id to dayLogs if missing
+  for (const log of Object.values(profile.logs)) {
+    if (!log.id) {
+      log.id = uuid();
+    }
+  }
+
+  return profile;
+}
+
 export function loadProfile(): UserProfile | null {
   if (typeof window === 'undefined') return null;
   const raw = localStorage.getItem(STORAGE_KEY);
   if (!raw) return null;
   try {
-    return JSON.parse(raw);
+    const parsed = JSON.parse(raw);
+    return migrateProfile(parsed);
   } catch {
     return null;
   }
@@ -173,17 +312,53 @@ export function loadProfile(): UserProfile | null {
 export function saveProfile(profile: UserProfile) {
   if (typeof window === 'undefined') return;
   localStorage.setItem(STORAGE_KEY, JSON.stringify(profile));
+  markDirty();
+}
+
+export function saveAndSync(profile: UserProfile) {
+  saveProfile(profile);
+  scheduleSyncPush({ profile: profileToSyncPayload(profile) });
+}
+
+function profileToSyncPayload(profile: UserProfile) {
+  return {
+    profile: {
+      archetype: profile.onboarding.archetype,
+      intensity: profile.onboarding.intensity,
+      poisons: profile.onboarding.poisons,
+      name: profile.onboarding.name,
+      currentDay: profile.currentDay,
+      currentStreak: profile.currentStreak,
+      bestStreak: profile.bestStreak,
+      overallLevel: profile.overallLevel,
+      totalXp: profile.totalXp,
+      focusLockActive: profile.focusLockActive,
+      unlockedApps: profile.unlockedApps,
+      attributes: profile.attributes,
+      dailyTimeBudget: profile.onboarding.dailyTimeBudget,
+    },
+    skills: profile.onboarding.skills,
+    questTemplates: profile.questTemplates,
+    dayLogs: Object.values(profile.logs).map(log => ({
+      ...log,
+      quests: log.quests,
+    })),
+  };
 }
 
 export function createProfile(onboarding: OnboardingData): UserProfile {
-  const quests = generateQuests(onboarding);
+  const migratedSkills = onboarding.skills.map((s, i) => migrateSkill(s as unknown as Record<string, unknown>, i));
+  const migratedOnboarding = { ...onboarding, skills: migratedSkills };
+  const templates = generateDefaultTemplates(migratedOnboarding);
+  const quests = generateQuestsFromTemplates(templates, migratedSkills, []);
   const today = todayKey();
   const scores = computeDayScores(quests);
 
-  const dayLog: DayLog = { date: today, quests, ...scores };
+  const dayLog: DayLog = { id: uuid(), date: today, quests, ...scores };
 
   return {
-    onboarding,
+    onboarding: migratedOnboarding,
+    questTemplates: templates,
     currentDay: 1,
     currentStreak: 1,
     bestStreak: 1,
@@ -200,9 +375,10 @@ export function getTodayLog(profile: UserProfile): DayLog {
   const today = todayKey();
   if (profile.logs[today]) return profile.logs[today];
 
-  const quests = generateQuests(profile.onboarding);
+  const existingLogs = Object.values(profile.logs);
+  const quests = generateQuests(profile.onboarding, profile.questTemplates, existingLogs);
   const scores = computeDayScores(quests);
-  const dayLog: DayLog = { date: today, quests, ...scores };
+  const dayLog: DayLog = { id: uuid(), date: today, quests, ...scores };
   profile.logs[today] = dayLog;
   return dayLog;
 }
@@ -243,11 +419,83 @@ export function toggleQuest(profile: UserProfile, questId: string): UserProfile 
   return { ...profile };
 }
 
-export function isAppUnlocked(profile: UserProfile): boolean {
-  const log = getTodayLog(profile);
-  const mainQuests = log.quests.filter(q => q.type === 'main');
-  const mainDone = mainQuests.filter(q => q.done).length;
-  return mainDone >= Math.min(2, mainQuests.length);
+// --- Quest Template CRUD ---
+
+export function addQuestTemplate(profile: UserProfile, template: Omit<QuestTemplate, 'id' | 'sortOrder'>): UserProfile {
+  const maxOrder = profile.questTemplates.reduce((max, t) => Math.max(max, t.sortOrder), -1);
+  const newTemplate: QuestTemplate = {
+    ...template,
+    id: uuid(),
+    sortOrder: maxOrder + 1,
+  };
+  return { ...profile, questTemplates: [...profile.questTemplates, newTemplate] };
+}
+
+export function updateQuestTemplate(profile: UserProfile, templateId: string, updates: Partial<QuestTemplate>): UserProfile {
+  return {
+    ...profile,
+    questTemplates: profile.questTemplates.map(t =>
+      t.id === templateId ? { ...t, ...updates } : t
+    ),
+  };
+}
+
+export function removeQuestTemplate(profile: UserProfile, templateId: string): UserProfile {
+  return {
+    ...profile,
+    questTemplates: profile.questTemplates.map(t =>
+      t.id === templateId ? { ...t, active: false } : t
+    ),
+  };
+}
+
+export function reorderQuestTemplates(profile: UserProfile, templateIds: string[]): UserProfile {
+  const reordered = profile.questTemplates.map(t => {
+    const idx = templateIds.indexOf(t.id);
+    return idx >= 0 ? { ...t, sortOrder: idx } : t;
+  });
+  return { ...profile, questTemplates: reordered };
+}
+
+// --- Custom Skill CRUD ---
+
+export function addSkill(profile: UserProfile, skill: Omit<SkillLevel, 'sortOrder'>): UserProfile {
+  const maxOrder = profile.onboarding.skills.reduce((max, s) => Math.max(max, s.sortOrder), -1);
+  const newSkill: SkillLevel = { ...skill, sortOrder: maxOrder + 1 };
+  return {
+    ...profile,
+    onboarding: {
+      ...profile.onboarding,
+      skills: [...profile.onboarding.skills, newSkill],
+    },
+  };
+}
+
+export function updateSkill(profile: UserProfile, skillId: string, updates: Partial<SkillLevel>): UserProfile {
+  return {
+    ...profile,
+    onboarding: {
+      ...profile.onboarding,
+      skills: profile.onboarding.skills.map(s =>
+        s.id === skillId ? { ...s, ...updates } : s
+      ),
+    },
+  };
+}
+
+export function removeSkill(profile: UserProfile, skillId: string): UserProfile {
+  return {
+    ...profile,
+    onboarding: {
+      ...profile.onboarding,
+      skills: profile.onboarding.skills.map(s =>
+        s.id === skillId ? { ...s, archived: true } : s
+      ),
+    },
+    questTemplates: profile.questTemplates.map(t =>
+      t.skillId === skillId ? { ...t, active: false } : t
+    ),
+  };
 }
 
 export function getConsistencyData(profile: UserProfile): { date: string; score: number }[] {

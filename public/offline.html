@@ -1,0 +1,96 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+    <meta name="theme-color" content="#0b1113" />
+    <title>FORGE Offline</title>
+    <style>
+      :root {
+        color-scheme: dark;
+        --bg: #0b1113;
+        --surface: #121a1d;
+        --border: #2d3a3d;
+        --text: #f3eee5;
+        --muted: #9aa49f;
+        --accent: #8fd6c9;
+        --copper: #d98a3d;
+      }
+
+      * {
+        box-sizing: border-box;
+      }
+
+      body {
+        min-height: 100vh;
+        margin: 0;
+        display: grid;
+        place-items: center;
+        padding: 24px;
+        background:
+          radial-gradient(circle at 50% -10%, rgba(143, 214, 201, 0.14), transparent 34rem),
+          linear-gradient(rgba(243, 238, 229, 0.025) 1px, transparent 1px),
+          linear-gradient(90deg, rgba(243, 238, 229, 0.025) 1px, transparent 1px),
+          var(--bg);
+        background-size: auto, 36px 36px, 36px 36px, auto;
+        color: var(--text);
+        font-family: ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      }
+
+      main {
+        width: min(100%, 360px);
+        border: 1px solid var(--border);
+        border-radius: 14px;
+        padding: 28px;
+        background: linear-gradient(180deg, rgba(255, 255, 255, 0.04), transparent), var(--surface);
+      }
+
+      p {
+        margin: 0;
+      }
+
+      .brand {
+        font-size: 28px;
+        font-weight: 900;
+        letter-spacing: 0.26em;
+      }
+
+      .kicker {
+        margin-top: 4px;
+        color: var(--accent);
+        font-size: 10px;
+        font-weight: 800;
+        letter-spacing: 0.34em;
+      }
+
+      .body {
+        margin-top: 28px;
+        color: var(--muted);
+        line-height: 1.55;
+      }
+
+      .stamp {
+        display: inline-flex;
+        margin-top: 22px;
+        border: 1px solid rgba(143, 214, 201, 0.36);
+        border-radius: 999px;
+        padding: 8px 11px;
+        color: var(--accent);
+        font-size: 11px;
+        font-weight: 800;
+        letter-spacing: 0.14em;
+      }
+    </style>
+  </head>
+  <body>
+    <main>
+      <p class="brand">FORGE</p>
+      <p class="kicker">DAILY PROTOCOL</p>
+      <p class="body">
+        You are offline. Your saved protocol still lives on this device.
+        Reconnect once, then reopen FORGE to refresh the app shell.
+      </p>
+      <p class="stamp">MODE AIRPLANE READY</p>
+    </main>
+  </body>
+</html>

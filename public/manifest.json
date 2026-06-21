@@ -1,22 +1,55 @@
 {
-  "name": "FORGE — Monk Mode",
+  "id": "/?source=pwa",
+  "name": "FORGE - Daily Protocol",
   "short_name": "FORGE",
-  "description": "Personal discipline protocol. Build the real character.",
+  "description": "Local-first daily discipline protocol for quests, clean living, progression, and Apple Focus setup.",
   "start_url": "/",
   "display": "standalone",
-  "background_color": "#0d0d0d",
-  "theme_color": "#0d0d0d",
+  "display_override": ["window-controls-overlay", "standalone", "minimal-ui"],
+  "background_color": "#0b1113",
+  "theme_color": "#0b1113",
   "orientation": "portrait",
+  "scope": "/",
+  "lang": "en",
+  "categories": ["productivity", "health", "fitness"],
+  "shortcuts": [
+    {
+      "name": "Today",
+      "short_name": "Today",
+      "description": "Open today's protocol",
+      "url": "/?tab=today"
+    },
+    {
+      "name": "Clean Check",
+      "short_name": "Clean",
+      "description": "Mark clean quests",
+      "url": "/?tab=clean"
+    },
+    {
+      "name": "Focus Setup",
+      "short_name": "Focus",
+      "description": "Open Apple Focus and Screen Time setup",
+      "url": "/?tab=focus"
+    },
+    {
+      "name": "Weekly Review",
+      "short_name": "Review",
+      "description": "Review the week",
+      "url": "/?tab=review"
+    }
+  ],
   "icons": [
     {
       "src": "/icon-192.png",
       "sizes": "192x192",
-      "type": "image/png"
+      "type": "image/png",
+      "purpose": "any maskable"
     },
     {
       "src": "/icon-512.png",
       "sizes": "512x512",
-      "type": "image/png"
+      "type": "image/png",
+      "purpose": "any maskable"
     }
   ]
 }
