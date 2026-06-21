@@ -14,6 +14,12 @@
   "categories": ["productivity", "health", "fitness"],
   "shortcuts": [
     {
+      "name": "Morning Ritual",
+      "short_name": "Morning",
+      "description": "Open the adaptive morning ritual",
+      "url": "/?tab=morning"
+    },
+    {
       "name": "Today",
       "short_name": "Today",
       "description": "Open today's protocol",

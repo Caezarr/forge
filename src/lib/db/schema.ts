@@ -116,6 +116,7 @@ export const userProfiles = sqliteTable('user_profiles', {
   focusLockActive: integer('focus_lock_active', { mode: 'boolean' }).notNull().default(true),
   unlockedApps: text('unlocked_apps'),
   attributes: text('attributes'),
+  morningLogs: text('morning_logs'),
   dailyTimeBudget: integer('daily_time_budget').default(120),
   updatedAt: integer('updated_at', { mode: 'timestamp' }).notNull().$defaultFn(() => new Date()),
 });

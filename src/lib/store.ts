@@ -1,9 +1,10 @@
 'use client';
 
-import { UserProfile, Quest, DayLog, OnboardingData, SkillLevel, QuestTemplate, PRESET_SKILLS } from './types';
+import { UserProfile, Quest, DayLog, OnboardingData, SkillLevel, QuestTemplate, PRESET_SKILLS, MorningRitualLog } from './types';
 import { v4 as uuid } from 'uuid';
 import { scheduleSyncPush, markDirty } from './sync';
 import { computeTarget } from './progression';
+import { defaultMorningRitual } from './morning';
 
 const STORAGE_KEY = 'forge_profile';
 
@@ -287,6 +288,10 @@ function migrateProfile(raw: Record<string, unknown>): UserProfile {
     profile.questTemplates = generateDefaultTemplates(profile.onboarding);
   }
 
+  if (!profile.morningLogs) {
+    profile.morningLogs = {};
+  }
+
   // Add id to dayLogs if missing
   for (const log of Object.values(profile.logs)) {
     if (!log.id) {
@@ -335,6 +340,7 @@ function profileToSyncPayload(profile: UserProfile) {
       focusLockActive: profile.focusLockActive,
       unlockedApps: profile.unlockedApps,
       attributes: profile.attributes,
+      morningLogs: profile.morningLogs,
       dailyTimeBudget: profile.onboarding.dailyTimeBudget,
     },
     skills: profile.onboarding.skills,
@@ -366,6 +372,7 @@ export function createProfile(onboarding: OnboardingData): UserProfile {
     totalXp: 0,
     attributes: defaultAttributes(),
     logs: { [today]: dayLog },
+    morningLogs: {},
     focusLockActive: true,
     unlockedApps: [],
   };
@@ -417,6 +424,46 @@ export function toggleQuest(profile: UserProfile, questId: string): UserProfile 
   profile.bestStreak = Math.max(profile.bestStreak, profile.currentStreak);
 
   return { ...profile };
+}
+
+export function getTodayMorningRitual(profile: UserProfile): MorningRitualLog {
+  const today = todayKey();
+  if (!profile.morningLogs) profile.morningLogs = {};
+  if (!profile.morningLogs[today]) {
+    profile.morningLogs[today] = defaultMorningRitual(profile);
+  }
+  return profile.morningLogs[today];
+}
+
+export function saveMorningRitual(profile: UserProfile, ritual: MorningRitualLog): UserProfile {
+  const morningLogs = { ...(profile.morningLogs || {}), [ritual.date]: ritual };
+  const updated = { ...profile, morningLogs };
+
+  if (ritual.completedAt || ritual.quality >= 80) {
+    const log = getTodayLog(updated);
+    const alreadyHasRitualQuest = log.quests.some((quest) => quest.templateId === 'morning-ritual');
+    if (!alreadyHasRitualQuest) {
+      log.quests.unshift({
+        id: uuid(),
+        templateId: 'morning-ritual',
+        label: `Morning ritual ${ritual.completedDurationMin}/${ritual.targetDurationMin} min`,
+        type: 'main',
+        category: 'identity',
+        xp: 100,
+        done: true,
+        target: ritual.targetDurationMin,
+        progress: ritual.completedDurationMin,
+        unit: 'min',
+      });
+      const scores = computeDayScores(log.quests);
+      Object.assign(log, scores);
+      updated.logs[log.date] = log;
+      updated.totalXp = Object.values(updated.logs).reduce((sum, l) => sum + l.xpEarned, 0);
+      updated.overallLevel = Math.floor(updated.totalXp / 500) + 1;
+    }
+  }
+
+  return updated;
 }
 
 // --- Quest Template CRUD ---

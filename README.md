@@ -2,17 +2,19 @@
 
 Local-first daily discipline protocol.
 
-FORGE turns skills, clean living, and deep work into a daily operating instrument. No account is required. Your protocol is stored on your device by default.
+FORGE turns the first 45 minutes of the day, clean living, and deep work into a daily operating instrument. No account is required. Your protocol is stored on your device by default.
 
 [![Deploy with Vercel](https://vercel.com/button)](https://vercel.com/new/clone?repository-url=https%3A%2F%2Fgithub.com%2FCaezarr%2Fforge)
 
 ## What it does
 
+- **Morning Ritual OS** — adaptive 45 minute launch protocol with readiness check, sequential timer, ritual blocks, and recovery/minimum variants.
 - **Daily protocol** — main quests, side quests, clean quests, XP, streaks, and a weighted score.
 - **Skill progression** — enter your current level and target for bodyweight, running, deep work, reading, and custom skills.
 - **Clean living** — track distractions and integrity habits without pretending the browser can block native apps.
 - **Focus setup** — practical Apple Screen Time, Focus Mode, and Shortcuts recipe for real app blocking outside the PWA.
 - **Proof loop** — heatmaps, weekly review, progress stats, and local history.
+- **Claude-ready coach layer** — a local coach contract is in place so an API coach can later generate rituals, reviews, and adjustments without breaking offline use.
 - **Local-first** — works without auth, database, or backend. Optional sync scaffolding can be enabled later.
 
 ## Deploy to Vercel

@@ -78,6 +78,60 @@ export interface DayLog {
   recoveryScore: number;
 }
 
+export type ReadinessMood = 'flat' | 'steady' | 'charged';
+export type RitualMode = 'push' | 'normal' | 'grounded' | 'minimum' | 'recovery';
+export type RitualBlockKind =
+  | 'wake'
+  | 'hydrate'
+  | 'mobility'
+  | 'breath'
+  | 'training'
+  | 'cold'
+  | 'journal'
+  | 'planning'
+  | 'clean'
+  | 'prime';
+
+export interface MorningReadiness {
+  sleep: number;
+  energy: number;
+  soreness: number;
+  stress: number;
+  timeAvailable: number;
+  mood: ReadinessMood;
+  motivation: number;
+  notes?: string;
+  score: number;
+  mode: RitualMode;
+  checkedAt: string;
+}
+
+export interface RitualBlock {
+  id: string;
+  kind: RitualBlockKind;
+  title: string;
+  cue: string;
+  why: string;
+  durationMin: number;
+  intensity: 1 | 2 | 3 | 4 | 5;
+  optional?: boolean;
+  done: boolean;
+}
+
+export interface MorningRitualLog {
+  id: string;
+  date: string;
+  mode: RitualMode;
+  targetDurationMin: number;
+  completedDurationMin: number;
+  quality: number;
+  readiness: MorningReadiness;
+  blocks: RitualBlock[];
+  completedAt?: string;
+  skippedReason?: string;
+  coachNote: string;
+}
+
 export interface Attribute {
   key: string;
   label: string;
@@ -96,6 +150,7 @@ export interface UserProfile {
   totalXp: number;
   attributes: Attribute[];
   logs: Record<string, DayLog>;
+  morningLogs: Record<string, MorningRitualLog>;
   focusLockActive: boolean;
   unlockedApps: string[];
 }
