@@ -56,7 +56,7 @@ const fullRitual: BlockTemplate[] = [
   {
     kind: 'breath',
     title: 'Downshift breath',
-    cue: 'Nasal breathing. 4 seconds in, 6 seconds out.',
+    cue: 'Do 10 slow nasal breaths: 4 seconds in, 6 seconds out. Keep shoulders low.',
     why: 'Sets calm control before intensity.',
     durationMin: 5,
     intensity: 2,
@@ -64,7 +64,7 @@ const fullRitual: BlockTemplate[] = [
   {
     kind: 'mobility',
     title: 'Mobility scan',
-    cue: 'Neck, hips, ankles, spine. Move where the body resists.',
+    cue: 'Move neck, hips, ankles and spine for 60-90 seconds each. Spend extra time where it feels blocked.',
     why: 'Turns soreness into signal instead of excuse.',
     durationMin: 8,
     intensity: 2,
@@ -72,7 +72,7 @@ const fullRitual: BlockTemplate[] = [
   {
     kind: 'training',
     title: 'Primer circuit',
-    cue: 'Push, pull or hinge, core. Stop fresh, not destroyed.',
+    cue: 'Do 3 rounds: 8 push-ups, 10 squats or hip hinges, 20s plank, 5 slow breaths. Stop with 2 reps in reserve.',
     why: 'Builds heat and confidence without hijacking the day.',
     durationMin: 10,
     intensity: 3,
@@ -88,7 +88,7 @@ const fullRitual: BlockTemplate[] = [
   {
     kind: 'journal',
     title: 'Journal the signal',
-    cue: 'One line: what matters, what could derail, what you will do anyway.',
+    cue: 'Write 3 bullets: what matters today, what could derail you, what you will do anyway.',
     why: 'Turns vague pressure into named choices.',
     durationMin: 5,
     intensity: 1,
@@ -96,7 +96,7 @@ const fullRitual: BlockTemplate[] = [
   {
     kind: 'planning',
     title: 'Plan the strike',
-    cue: 'Choose the first 90-minute block and the one task that earns the day.',
+    cue: 'Pick the first deep-work block and one task that makes the day count. Start it before feeds.',
     why: 'Makes focus concrete before notifications compete.',
     durationMin: 5,
     intensity: 2,

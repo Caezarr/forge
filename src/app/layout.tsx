@@ -22,6 +22,10 @@ export const metadata: Metadata = {
     "Local-first daily discipline protocol for quests, clean living, progression, and Apple Focus setup.",
   applicationName: "FORGE",
   manifest: "/manifest.json",
+  icons: {
+    icon: "/favicon.ico",
+    apple: "/apple-touch-icon.png",
+  },
   category: "productivity",
   keywords: [
     "discipline",

@@ -10,6 +10,7 @@ import { hapticLight, hapticSuccess } from '@/lib/haptics';
 interface Props {
   profile: UserProfile;
   onUpdate: (profile: UserProfile) => void;
+  onOpenToday?: () => void;
 }
 
 const blockIcons: Record<string, string> = {
@@ -30,6 +31,12 @@ const moodOptions: { id: ReadinessMood; label: string }[] = [
   { id: 'steady', label: 'Steady' },
   { id: 'charged', label: 'Charged' },
 ];
+
+const moodHints: Record<ReadinessMood, string> = {
+  flat: 'Low drive',
+  steady: 'Normal',
+  charged: 'Ready',
+};
 
 function StatPill({ label, value }: { label: string; value: string | number }) {
   return (
@@ -85,6 +92,20 @@ function nextOpenBlock(blocks: RitualBlock[]): RitualBlock | undefined {
   return blocks.find((block) => !block.done);
 }
 
+function coachDirective(block?: RitualBlock): string {
+  if (!block) return 'Ritual done. Open Today and lock the first real task before any feed.';
+  if (block.kind === 'training') {
+    return 'Do the circuit exactly as written. This is a warm-up primer, not a workout PR.';
+  }
+  if (block.kind === 'planning') {
+    return 'Choose one task that makes the day count. Start that task before checking messages.';
+  }
+  if (block.kind === 'breath') {
+    return 'Slow the system down first. The goal is control, not intensity.';
+  }
+  return block.cue;
+}
+
 function ReadinessPanel({
   readiness,
   onGenerate,
@@ -113,7 +134,10 @@ function ReadinessPanel({
       <div className="flex items-center justify-between gap-3">
         <div>
           <p className="text-[10px] font-bold uppercase tracking-[0.22em] text-forge-muted">Readiness check</p>
-          <h3 className="mt-1 text-lg font-black">Set the morning load.</h3>
+          <h3 className="mt-1 text-lg font-black">Tell Forge what you can handle.</h3>
+          <p className="mt-1 text-xs leading-relaxed text-forge-muted">
+            Adjust the sliders, set your available minutes, then Forge builds the right ritual for this morning.
+          </p>
         </div>
         <div className="rounded-full border border-forge-green/50 px-3 py-1 text-[10px] font-black uppercase tracking-[0.16em] text-forge-green">
           20 sec
@@ -127,9 +151,9 @@ function ReadinessPanel({
         <Slider label="Stress" value={stress} onChange={setStress} low="calm" high="wired" />
       </div>
 
-      <div className="mt-3 grid grid-cols-[1fr_1.2fr] gap-2">
+      <div className="mt-3 grid grid-cols-1 gap-2 sm:grid-cols-[1fr_1.2fr]">
         <label className="rounded-xl border border-forge-border/75 bg-forge-bg/30 p-3">
-          <span className="text-[10px] font-bold uppercase tracking-[0.18em] text-forge-muted">Minutes</span>
+          <span className="text-[10px] font-bold uppercase tracking-[0.18em] text-forge-muted">Minutes available</span>
           <input
             type="number"
             min={5}
@@ -138,6 +162,7 @@ function ReadinessPanel({
             onChange={(event) => setTimeAvailable(Number(event.target.value))}
             className="mt-2 w-full bg-transparent text-2xl font-black text-forge-text outline-none"
           />
+          <span className="mt-1 block text-[9px] leading-snug text-forge-muted">How long you can give before the day starts.</span>
         </label>
         <div className="rounded-xl border border-forge-border/75 bg-forge-bg/30 p-3">
           <p className="text-[10px] font-bold uppercase tracking-[0.18em] text-forge-muted">Mood</p>
@@ -146,11 +171,12 @@ function ReadinessPanel({
               <button
                 key={option.id}
                 onClick={() => setMood(option.id)}
-                className={`rounded-lg border px-2 py-2 text-[10px] font-black uppercase tracking-[0.12em] ${
+                className={`min-w-0 rounded-lg border px-1 py-2 text-center transition-colors ${
                   mood === option.id ? 'border-forge-green bg-forge-green/10 text-forge-green' : 'border-forge-border text-forge-muted'
                 }`}
               >
-                {option.label}
+                <span className="block truncate text-[10px] font-black uppercase tracking-[0.04em]">{option.label}</span>
+                <span className="mt-0.5 block truncate text-[9px] normal-case tracking-normal opacity-75">{moodHints[option.id]}</span>
               </button>
             ))}
           </div>
@@ -168,7 +194,7 @@ function ReadinessPanel({
         }}
         className="mt-4 w-full rounded-xl bg-forge-green px-4 py-3 text-sm font-black uppercase tracking-[0.18em] text-forge-bg active:scale-[0.99]"
       >
-        Generate today&apos;s ritual
+        Build my morning plan
       </button>
     </section>
   );
@@ -219,7 +245,7 @@ function RitualBlockRow({
   );
 }
 
-export default function MorningView({ profile, onUpdate }: Props) {
+export default function MorningView({ profile, onUpdate, onOpenToday }: Props) {
   const ritual = getTodayMorningRitual(profile);
   const stats = getMorningStats(profile);
   const activeBlock = useMemo(() => nextOpenBlock(ritual.blocks), [ritual.blocks]);
@@ -313,6 +339,14 @@ export default function MorningView({ profile, onUpdate }: Props) {
           </div>
         </div>
 
+        <div className="mt-4 rounded-xl border border-forge-green/35 bg-forge-green/10 p-3">
+          <p className="text-[9px] font-bold uppercase tracking-[0.2em] text-forge-green">Coach says now</p>
+          <p className="mt-1 text-sm font-semibold leading-relaxed text-forge-text">{coachDirective(activeBlock)}</p>
+          {activeBlock && (
+            <p className="mt-2 text-xs leading-relaxed text-forge-muted">{activeBlock.cue}</p>
+          )}
+        </div>
+
         <div className="mt-4 grid grid-cols-2 gap-2">
           <button
             disabled={!activeBlock || completed}
@@ -339,6 +373,18 @@ export default function MorningView({ profile, onUpdate }: Props) {
             Finish ritual
           </button>
         </div>
+
+        {activeBlock?.kind === 'training' && onOpenToday && (
+          <button
+            onClick={() => {
+              hapticLight();
+              onOpenToday();
+            }}
+            className="mt-2 w-full rounded-xl border border-forge-border/80 bg-forge-bg/35 px-4 py-3 text-xs font-black uppercase tracking-[0.14em] text-forge-text"
+          >
+            Open today&apos;s tasks after primer
+          </button>
+        )}
       </section>
 
       <ReadinessPanel
