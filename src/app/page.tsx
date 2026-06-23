@@ -172,7 +172,13 @@ export default function Home() {
         )}
         {modal === 'none' && (
           <>
-            {activeTab === 'morning' && <MorningView profile={profile} onUpdate={handleProfileUpdate} />}
+            {activeTab === 'morning' && (
+              <MorningView
+                profile={profile}
+                onUpdate={handleProfileUpdate}
+                onOpenToday={() => setActiveTab('today')}
+              />
+            )}
             {activeTab === 'today' && <TodayView profile={profile} onToggle={handleToggle} />}
             {activeTab === 'proof' && <ProofView profile={profile} />}
             {activeTab === 'skills' && <SkillsView profile={profile} />}
