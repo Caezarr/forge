@@ -3,6 +3,7 @@
 import { UserProfile } from '@/lib/types';
 import { getWeeklyStats } from '@/lib/store';
 import { detectPatterns, getWeekComparison, getDailyBreakdown } from '@/lib/analytics';
+import { getMorningStats } from '@/lib/morning';
 
 interface Props {
   profile: UserProfile;
@@ -22,6 +23,7 @@ export default function ReviewView({ profile }: Props) {
   const patterns = detectPatterns(profile);
   const comparison = getWeekComparison(profile);
   const daily = getDailyBreakdown(profile, 7);
+  const morning = getMorningStats(profile);
 
   const warnings = patterns.filter(p => p.severity === 'critical' || p.severity === 'warning');
   const positives = patterns.filter(p => p.severity === 'info');
@@ -33,13 +35,14 @@ export default function ReviewView({ profile }: Props) {
         <p className="text-forge-muted text-sm">Data-driven adjustments.</p>
       </div>
 
-      <div className="grid grid-cols-5 gap-1">
+      <div className="grid grid-cols-3 gap-2">
         {[
           { label: 'Monk Score', value: `${stats.monkScore}%`, icon: '⊕' },
           { label: 'XP Earned', value: stats.xpEarned.toLocaleString(), icon: '▲' },
           { label: 'Clean Days', value: `${stats.cleanDays}/7`, icon: '📅' },
           { label: 'Runs', value: `${stats.runs}/3`, icon: '🏃' },
           { label: 'Deep Work', value: `${stats.deepWorkHours}h${stats.deepWorkMins > 0 ? ` ${stats.deepWorkMins}m` : ''}`, icon: '🧠' },
+          { label: 'Morning', value: `${morning.avgQuality}%`, icon: '☼' },
         ].map((s) => (
           <div key={s.label} className="bg-forge-surface border border-forge-border rounded-lg p-2 text-center">
             <span className="text-sm">{s.icon}</span>
@@ -47,6 +50,28 @@ export default function ReviewView({ profile }: Props) {
             <p className="text-sm font-bold text-forge-red">{s.value}</p>
           </div>
         ))}
+      </div>
+
+      <div className="bg-forge-surface border border-forge-green/30 rounded-lg p-4">
+        <p className="text-[10px] tracking-widest text-forge-green uppercase mb-3">Morning Ritual</p>
+        <div className="grid grid-cols-4 gap-2">
+          {[
+            { label: 'Streak', value: morning.streak },
+            { label: 'Quality', value: `${morning.avgQuality}%` },
+            { label: 'Readiness', value: `${morning.avgReadiness}%` },
+            { label: 'Impact', value: morning.averageDayScoreAfterRitual ? `${morning.averageDayScoreAfterRitual}%` : 'new' },
+          ].map((item) => (
+            <div key={item.label} className="bg-forge-bg rounded-lg p-3 text-center">
+              <p className="text-[9px] text-forge-muted">{item.label}</p>
+              <p className="text-lg font-bold text-forge-text">{item.value}</p>
+            </div>
+          ))}
+        </div>
+        <p className="mt-3 text-xs leading-relaxed text-forge-muted">
+          {morning.missedKind
+            ? `Most fragile block: ${morning.missedKind}. Keep the morning protocol lighter until that block stabilizes.`
+            : 'Morning insights unlock after a few completed rituals.'}
+        </p>
       </div>
 
       {/* Week vs Week */}

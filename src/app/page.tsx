@@ -8,6 +8,7 @@ import { registerServiceWorker } from '@/lib/notifications';
 import BottomNav, { TabId } from '@/components/BottomNav';
 import Header from '@/components/Header';
 import Onboarding from '@/components/Onboarding';
+import MorningView from '@/components/MorningView';
 import TodayView from '@/components/TodayView';
 import ProofView from '@/components/ProofView';
 import SkillsView from '@/components/SkillsView';
@@ -20,7 +21,7 @@ import SettingsView from '@/components/SettingsView';
 import { hapticLight } from '@/lib/haptics';
 import type { OnboardingData } from '@/lib/types';
 
-const TAB_ORDER: TabId[] = ['today', 'proof', 'skills', 'clean', 'focus', 'review'];
+const TAB_ORDER: TabId[] = ['morning', 'today', 'proof', 'skills', 'clean', 'focus', 'review'];
 const TAB_SET = new Set<TabId>(TAB_ORDER);
 
 export type ModalView = 'none' | 'quest-builder' | 'skill-builder' | 'settings';
@@ -34,7 +35,7 @@ function isStandaloneMode(): boolean {
 export default function Home() {
   const [profile, setProfile] = useState<UserProfile | null>(null);
   const [loaded, setLoaded] = useState(false);
-  const [activeTab, setActiveTab] = useState<TabId>('today');
+  const [activeTab, setActiveTab] = useState<TabId>('morning');
   const [modal, setModal] = useState<ModalView>('none');
   const [online, setOnline] = useState(true);
   const [installed, setInstalled] = useState(false);
@@ -171,6 +172,7 @@ export default function Home() {
         )}
         {modal === 'none' && (
           <>
+            {activeTab === 'morning' && <MorningView profile={profile} onUpdate={handleProfileUpdate} />}
             {activeTab === 'today' && <TodayView profile={profile} onToggle={handleToggle} />}
             {activeTab === 'proof' && <ProofView profile={profile} />}
             {activeTab === 'skills' && <SkillsView profile={profile} />}
