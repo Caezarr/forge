@@ -1,6 +1,7 @@
 'use client';
 
 const tabs = [
+  { id: 'morning', label: 'Morning', icon: '☼' },
   { id: 'today', label: 'Today', icon: '⊕' },
   { id: 'proof', label: 'Proof', icon: '▊' },
   { id: 'skills', label: 'Skills', icon: '◈' },
@@ -14,7 +15,7 @@ export type TabId = (typeof tabs)[number]['id'];
 export default function BottomNav({ active, onChange }: { active: TabId; onChange: (t: TabId) => void }) {
   return (
     <nav className="fixed bottom-0 left-0 right-0 z-50 px-3 pb-[max(0.75rem,env(safe-area-inset-bottom))] pt-2 pointer-events-none">
-      <div className="pointer-events-auto mx-auto grid h-16 max-w-lg grid-cols-6 items-center rounded-2xl border border-forge-border/90 bg-forge-bg/92 px-1 shadow-[0_-20px_60px_rgba(0,0,0,0.38)] backdrop-blur-xl">
+      <div className="pointer-events-auto mx-auto grid h-16 max-w-lg grid-cols-7 items-center rounded-2xl border border-forge-border/90 bg-forge-bg/92 px-1 shadow-[0_-20px_60px_rgba(0,0,0,0.38)] backdrop-blur-xl">
         {tabs.map((tab) => (
           <button
             key={tab.id}

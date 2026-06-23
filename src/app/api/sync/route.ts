@@ -68,6 +68,7 @@ export async function POST(req: NextRequest) {
       poisons: JSON.stringify(body.profile.poisons || []),
       unlockedApps: JSON.stringify(body.profile.unlockedApps || []),
       attributes: JSON.stringify(body.profile.attributes || []),
+      morningLogs: JSON.stringify(body.profile.morningLogs || {}),
       updatedAt: new Date(),
     };
     if (existing) {

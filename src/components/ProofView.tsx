@@ -2,6 +2,7 @@
 
 import { UserProfile } from '@/lib/types';
 import { getConsistencyData } from '@/lib/store';
+import { getMorningStats } from '@/lib/morning';
 import { HeatmapGreen } from './Heatmap';
 
 interface Props {
@@ -31,6 +32,7 @@ function StatBar({ label, icon, pct }: { label: string; icon: string; pct: numbe
 export default function ProofView({ profile }: Props) {
   const consistency = getConsistencyData(profile);
   const totalDays = Object.keys(profile.logs).length;
+  const morning = getMorningStats(profile);
   const daysWithScore = Object.values(profile.logs).filter((l) => l.monkScore >= 50).length;
   const consistencyPct = totalDays > 0 ? Math.round((daysWithScore / Math.max(totalDays, 1)) * 100) : 0;
 
@@ -76,12 +78,28 @@ export default function ProofView({ profile }: Props) {
         </div>
       </div>
 
+      <div className="grid grid-cols-4 gap-2">
+        {[
+          { label: 'Morning Streak', value: morning.streak, sub: 'ritual' },
+          { label: 'Quality', value: `${morning.avgQuality}%`, sub: '14 day avg' },
+          { label: 'Readiness', value: `${morning.avgReadiness}%`, sub: '14 day avg' },
+          { label: 'Day Impact', value: morning.averageDayScoreAfterRitual ? `${morning.averageDayScoreAfterRitual}%` : 'new', sub: 'after ritual' },
+        ].map((stat) => (
+          <div key={stat.label} className="bg-forge-surface border border-forge-border rounded-lg p-3 text-center">
+            <p className="text-[8px] tracking-widest text-forge-muted uppercase">{stat.label}</p>
+            <p className="text-lg font-black text-forge-green">{stat.value}</p>
+            <p className="text-[9px] text-forge-muted">{stat.sub}</p>
+          </div>
+        ))}
+      </div>
+
       <HeatmapGreen data={consistency} weeks={52} label="Life Consistency" logs={profile.logs} />
 
       <div className="bg-forge-surface border border-forge-border rounded-lg p-4 space-y-1">
         <StatBar label="Running" icon="🏃" pct={runPct} />
         <StatBar label="Strength" icon="💪" pct={strengthPct} />
         <StatBar label="Deep Work" icon="📖" pct={deepWorkPct} />
+        <StatBar label="Morning" icon="☼" pct={morning.avgQuality} />
         <StatBar label="No Social" icon="📵" pct={cleanPct} />
       </div>
 
