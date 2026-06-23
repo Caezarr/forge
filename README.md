@@ -1,8 +1,10 @@
 # FORGE
 
-Local-first Life OS for morning execution, clean living, and personal progression.
+Local-first Life OS with a personal coach for morning execution, clean living, and personal progression.
 
 FORGE turns the first 45 minutes of the day, daily quests, training targets, clean habits, and deep work into one operating instrument. It starts as a private PWA that runs on your phone with no account required. The immediate goal is simple: deploy fast, install on mobile, and make the daily loop feel reliable enough to use every morning.
+
+The long-term vision is a real Life OS: a system that follows what you do, understands your rituals, adapts the plan when the day changes, and coaches you toward the next right action without shame or fake motivation.
 
 [![Deploy with Vercel](https://vercel.com/button)](https://vercel.com/new/clone?repository-url=https%3A%2F%2Fgithub.com%2FCaezarr%2Fforge)
 
@@ -14,8 +16,21 @@ FORGE turns the first 45 minutes of the day, daily quests, training targets, cle
 - **Clean living** — track distractions and integrity habits without pretending the browser can block native apps.
 - **Focus setup** — practical Apple Screen Time, Focus Mode, and Shortcuts recipe for real app blocking outside the PWA.
 - **Proof loop** — heatmaps, weekly review, progress stats, and local history.
-- **Claude-ready coach layer** — a local coach contract is in place so an API coach can later generate rituals, reviews, and adjustments without breaking offline use.
+- **Coach-ready intelligence layer** — a local coach contract is in place so an API coach can later generate rituals, reviews, adjustments, and live nudges without breaking offline use.
 - **Local-first** — works without auth, database, or backend. Optional sync scaffolding can be enabled later.
+
+## Life OS Vision
+
+FORGE is meant to become more than a habit tracker. The goal is a personal operating system that can:
+
+- **Observe your real loop** — morning readiness, quests, clean score, focus sessions, training progress, missed tasks, streaks, and weekly patterns.
+- **Coach in context** — suggest the next action based on the current day instead of generic advice.
+- **Adapt the plan live** — switch from push mode to recovery mode, compress a ritual when time is short, or move unfinished work into a realistic fallback.
+- **Create accountability** — show what was promised, what was done, what slipped, and what needs to change tomorrow.
+- **Bridge self-improvement domains** — discipline, sport, work, recovery, learning, sleep hygiene, and personal development in one daily protocol.
+- **Stay private by default** — local-first data remains the baseline; cloud sync and AI coaching should be optional layers, not requirements.
+
+The coach should feel like a calm operator: direct, specific, and useful in the moment. Not a chatbot bolted onto a todo list.
 
 ## Product Direction
 
@@ -23,7 +38,7 @@ FORGE is designed to grow into a personal Life OS:
 
 - **Morning command center** — wake up, run the ritual, see the day's tasks, then start the first deep-work action.
 - **Multi-device sync** — complete or update a task on one device and see it on the PWA and phone.
-- **Coach layer** — daily planning, weekly review, training adjustment, recovery nudges, and personal-development feedback.
+- **Live coach layer** — daily planning, weekly review, training adjustment, recovery nudges, and personal-development feedback based on actual logged behavior.
 - **Alarm and routine hooks** — wake-up flow, reminders, focus mode, and automation integrations without making the app cloud-dependent by default.
 - **Later room display** — once the PWA is solid, a Raspberry Pi or ESP32 screen can become a glanceable wall display for today's protocol.
 
