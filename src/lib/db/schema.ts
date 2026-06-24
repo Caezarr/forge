@@ -1,5 +1,11 @@
 import { sqliteTable, text, integer, real } from 'drizzle-orm/sqlite-core';
 
+export const appState = sqliteTable('app_state', {
+  id: text('id').primaryKey(),
+  data: text('data').notNull(),
+  updatedAt: text('updated_at').notNull(),
+});
+
 export const users = sqliteTable('users', {
   id: text('id').primaryKey(),
   email: text('email').notNull().unique(),

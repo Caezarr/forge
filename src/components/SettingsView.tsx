@@ -1,6 +1,7 @@
 'use client';
 
 import { useState } from 'react';
+import { UserProfile } from '@/lib/types';
 import {
   NotificationSettings,
   getNotificationSettings,
@@ -8,14 +9,26 @@ import {
   requestNotificationPermission,
   registerServiceWorker,
 } from '@/lib/notifications';
+import {
+  getStateSyncStatus,
+  getStateSyncToken,
+  getStateSyncUpdatedAt,
+  pushStateProfile,
+  setStateSyncToken,
+} from '@/lib/state-sync';
 
 interface Props {
+  profile: UserProfile;
   onClose: () => void;
   onResetProfile: () => void;
 }
 
-export default function SettingsView({ onClose, onResetProfile }: Props) {
+export default function SettingsView({ profile, onClose, onResetProfile }: Props) {
   const [settings, setSettings] = useState<NotificationSettings>(getNotificationSettings());
+  const [syncToken, setSyncToken] = useState(getStateSyncToken());
+  const [syncStatus, setSyncStatus] = useState(getStateSyncStatus());
+  const [lastSync, setLastSync] = useState(getStateSyncUpdatedAt());
+  const [syncMessage, setSyncMessage] = useState('');
   const [permissionState, setPermissionState] = useState<NotificationPermission>(() => {
     if (typeof window !== 'undefined' && 'Notification' in window) return Notification.permission;
     return 'default';
@@ -138,6 +151,65 @@ export default function SettingsView({ onClose, onResetProfile }: Props) {
             </div>
           </div>
         )}
+      </div>
+
+      {/* Cloud Backup */}
+      <div className="bg-forge-surface border border-forge-border rounded-lg p-4">
+        <p className="text-[10px] tracking-widest text-forge-muted uppercase mb-3">Cloud Backup</p>
+        <p className="text-xs leading-relaxed text-forge-muted mb-3">
+          Optional SQLite backup for this one-user Life OS. Local storage stays the offline source of truth.
+        </p>
+
+        <label className="block">
+          <span className="text-[10px] tracking-widest text-forge-muted uppercase">Sync token</span>
+          <input
+            type="password"
+            value={syncToken}
+            onChange={(event) => setSyncToken(event.target.value)}
+            placeholder="Paste FORGE_SYNC_TOKEN"
+            className="mt-2 w-full rounded-lg border border-forge-border bg-forge-bg px-3 py-2 text-sm text-forge-text outline-none"
+          />
+        </label>
+
+        <div className="mt-3 grid grid-cols-2 gap-2">
+          <button
+            onClick={() => {
+              setStateSyncToken(syncToken);
+              setSyncStatus(getStateSyncStatus());
+              setSyncMessage(syncToken.trim() ? 'Token saved on this device.' : 'Token removed.');
+            }}
+            className="py-2.5 border border-forge-border text-forge-text font-bold tracking-wider rounded-lg text-xs"
+          >
+            SAVE TOKEN
+          </button>
+          <button
+            onClick={async () => {
+              setSyncMessage('Pushing...');
+              const updatedAt = await pushStateProfile(profile);
+              if (updatedAt) {
+                setLastSync(updatedAt);
+                setSyncMessage('Backup saved.');
+              } else {
+                setSyncMessage('Backup failed or disabled.');
+              }
+            }}
+            disabled={syncStatus === 'disabled'}
+            className="py-2.5 bg-forge-green text-forge-bg font-black tracking-wider rounded-lg text-xs disabled:opacity-40"
+          >
+            PUSH NOW
+          </button>
+        </div>
+
+        <div className="mt-3 rounded-lg border border-forge-border/70 bg-forge-bg/35 p-3">
+          <p className="text-[10px] uppercase tracking-widest text-forge-muted">Status</p>
+          <p className="mt-1 text-xs text-forge-text">
+            {syncStatus === 'ready' ? 'Ready on this device' : 'Disabled until a token is set'}
+          </p>
+          <p className="mt-1 text-[10px] text-forge-muted">
+            Last backup: {lastSync ? new Date(lastSync).toLocaleString() : 'never'}
+          </p>
+          {syncMessage && <p className="mt-2 text-[10px] text-forge-green">{syncMessage}</p>}
+        </div>
       </div>
 
       {/* Data */}

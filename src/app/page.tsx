@@ -2,7 +2,8 @@
 
 import { useState, useEffect, useCallback, useRef } from 'react';
 import { UserProfile } from '@/lib/types';
-import { loadProfile, saveProfile, createProfile, toggleQuest } from '@/lib/store';
+import { loadProfile, saveAndSync, saveProfile, createProfile, toggleQuest } from '@/lib/store';
+import { getLocalStateUpdatedAt, pullStateProfile } from '@/lib/state-sync';
 import { initNotifications } from '@/lib/notifications';
 import { registerServiceWorker } from '@/lib/notifications';
 import BottomNav, { TabId } from '@/components/BottomNav';
@@ -74,10 +75,18 @@ export default function Home() {
       if (tab === 'lock') setActiveTab('focus');
       else if (tab && TAB_SET.has(tab as TabId)) setActiveTab(tab as TabId);
       const p = loadProfile();
+      const localUpdatedAt = getLocalStateUpdatedAt();
       setProfile(p);
       setLoaded(true);
       setOnline(navigator.onLine);
       setInstalled(isStandaloneMode());
+
+      pullStateProfile().then((remote) => {
+        if (!remote?.profile) return;
+        if (localUpdatedAt && remote.updatedAt && localUpdatedAt > remote.updatedAt) return;
+        saveProfile(remote.profile);
+        setProfile(remote.profile);
+      });
     });
     registerServiceWorker();
     initNotifications();
@@ -102,7 +111,7 @@ export default function Home() {
 
   const handleOnboardingComplete = useCallback((data: OnboardingData) => {
     const p = createProfile(data);
-    saveProfile(p);
+    saveAndSync(p);
     setProfile(p);
   }, []);
 
@@ -110,14 +119,14 @@ export default function Home() {
     (questId: string) => {
       if (!profile) return;
       const updated = toggleQuest(profile, questId);
-      saveProfile(updated);
+      saveAndSync(updated);
       setProfile(updated);
     },
     [profile]
   );
 
   const handleProfileUpdate = useCallback((updated: UserProfile) => {
-    saveProfile(updated);
+    saveAndSync(updated);
     setProfile(updated);
   }, []);
 
@@ -126,6 +135,8 @@ export default function Home() {
     localStorage.removeItem('forge_last_sync');
     localStorage.removeItem('forge_dirty');
     localStorage.removeItem('forge_notification_settings');
+    localStorage.removeItem('forge_state_updated_at');
+    localStorage.removeItem('forge_local_updated_at');
     setProfile(null);
     setModal('none');
   }, []);
@@ -168,7 +179,7 @@ export default function Home() {
           <SkillBuilder profile={profile} onUpdate={handleProfileUpdate} onClose={() => setModal('none')} />
         )}
         {modal === 'settings' && (
-          <SettingsView onClose={() => setModal('none')} onResetProfile={handleResetProfile} />
+          <SettingsView profile={profile} onClose={() => setModal('none')} onResetProfile={handleResetProfile} />
         )}
         {modal === 'none' && (
           <>
