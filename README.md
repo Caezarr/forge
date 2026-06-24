@@ -63,23 +63,30 @@ After deployment:
 
 ### Optional sync backend
 
-Only add these if you want hosted account sync:
+For the simple one-user SQLite backup, add:
 
 ```bash
 TURSO_DATABASE_URL=
 TURSO_AUTH_TOKEN=
-GOOGLE_CLIENT_ID=
-GOOGLE_CLIENT_SECRET=
-AUTH_SECRET=
+FORGE_SYNC_TOKEN=
+FORGE_STATE_ID=gabriel
 ```
 
-Without those variables, the app still builds and runs local-first.
+`FORGE_SYNC_TOKEN` protects `/api/state`. On each device, paste the same token in **Settings -> Cloud Backup**.
+
+If you want the deployed PWA to sync without manually entering the token on each device, also set:
+
+```bash
+NEXT_PUBLIC_FORGE_SYNC_TOKEN=
+```
+
+This is convenient for a solo private app, but remember that `NEXT_PUBLIC_*` values are visible to the browser bundle. Without these variables, the app still builds and runs local-first.
 
 When sync is enabled, the intended flow is:
 
 1. The PWA writes changes locally first.
-2. Completed tasks and profile updates are marked dirty.
-3. The app pushes changes to `/api/sync`.
+2. Completed tasks and profile updates are saved to `localStorage`.
+3. The app pushes the full profile JSON to `/api/state`.
 4. Other clients pull the latest state and update their local view.
 
 This is the path that will later support reliable multi-device updates.

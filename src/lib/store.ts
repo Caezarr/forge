@@ -2,7 +2,8 @@
 
 import { UserProfile, Quest, DayLog, OnboardingData, SkillLevel, QuestTemplate, PRESET_SKILLS, MorningRitualLog } from './types';
 import { v4 as uuid } from 'uuid';
-import { scheduleSyncPush, markDirty } from './sync';
+import { markDirty } from './sync';
+import { markLocalStateUpdated, scheduleStatePush } from './state-sync';
 import { computeTarget } from './progression';
 import { defaultMorningRitual } from './morning';
 
@@ -317,39 +318,13 @@ export function loadProfile(): UserProfile | null {
 export function saveProfile(profile: UserProfile) {
   if (typeof window === 'undefined') return;
   localStorage.setItem(STORAGE_KEY, JSON.stringify(profile));
+  markLocalStateUpdated();
   markDirty();
 }
 
 export function saveAndSync(profile: UserProfile) {
   saveProfile(profile);
-  scheduleSyncPush({ profile: profileToSyncPayload(profile) });
-}
-
-function profileToSyncPayload(profile: UserProfile) {
-  return {
-    profile: {
-      archetype: profile.onboarding.archetype,
-      intensity: profile.onboarding.intensity,
-      poisons: profile.onboarding.poisons,
-      name: profile.onboarding.name,
-      currentDay: profile.currentDay,
-      currentStreak: profile.currentStreak,
-      bestStreak: profile.bestStreak,
-      overallLevel: profile.overallLevel,
-      totalXp: profile.totalXp,
-      focusLockActive: profile.focusLockActive,
-      unlockedApps: profile.unlockedApps,
-      attributes: profile.attributes,
-      morningLogs: profile.morningLogs,
-      dailyTimeBudget: profile.onboarding.dailyTimeBudget,
-    },
-    skills: profile.onboarding.skills,
-    questTemplates: profile.questTemplates,
-    dayLogs: Object.values(profile.logs).map(log => ({
-      ...log,
-      quests: log.quests,
-    })),
-  };
+  scheduleStatePush(profile);
 }
 
 export function createProfile(onboarding: OnboardingData): UserProfile {
