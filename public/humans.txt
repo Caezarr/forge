@@ -1,6 +1,7 @@
 /* TEAM */
 Creator: Gabriel Rance
-Site: https://github.com/Caezarr/forge
+Site: https://forge-app.vercel.app
+GitHub: https://github.com/Caezarr/forge
 Location: Europe
 
 /* SITE */
