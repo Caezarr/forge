@@ -1,0 +1,4 @@
+User-agent: *
+Allow: /
+
+Sitemap: https://forge.caezarr.dev/sitemap.xml
