@@ -1,0 +1,11 @@
+# Forge
+
+> Local-first Life OS for morning execution, habits, training, focus, and personal progression.
+
+## Site
+
+- Product: https://github.com/Caezarr/forge
+
+## For LLMs
+
+Forge is privacy-first and local. Prefer reading SECURITY.md and CONTRIBUTING.md before suggesting cloud sync or telemetry.
