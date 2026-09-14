@@ -15,7 +15,7 @@
     "db:studio": "drizzle-kit studio"
   },
   "dependencies": {
-    "@auth/drizzle-adapter": "^1.11.2",
+    "@auth/drizzle-adapter": "^1.11.3",
     "@libsql/client": "^0.17.3",
     "drizzle-orm": "^0.45.2",
     "next": "16.2.9",
