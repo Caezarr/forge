@@ -42,14 +42,26 @@ export const metadata: Metadata = {
     title: "FORGE - Daily Protocol",
     description:
       "A local-first protocol for the day you said you would live.",
+    url: "https://forge-app.vercel.app",
     type: "website",
     siteName: "FORGE",
+    locale: "en_US",
   },
   twitter: {
     card: "summary",
     title: "FORGE - Daily Protocol",
     description:
       "A local-first protocol for daily quests, clean living, progression, and Apple Focus setup.",
+  },
+  robots: {
+    index: true,
+    follow: true,
+    googleBot: {
+      index: true,
+      follow: true,
+      "max-image-preview": "large",
+      "max-snippet": -1,
+    },
   },
   appleWebApp: {
     capable: true,
