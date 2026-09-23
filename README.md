@@ -42,56 +42,32 @@ FORGE is designed to grow into a personal Life OS:
 - **Alarm and routine hooks** — wake-up flow, reminders, focus mode, and automation integrations without making the app cloud-dependent by default.
 - **Later room display** — once the PWA is solid, a Raspberry Pi or ESP32 screen can become a glanceable wall display for today's protocol.
 
-## Easy Deploy on Vercel
+## Quick Deploy
 
-The default deployment needs no environment variables.
+Deploy FORGE to Vercel in one click—no environment variables required.
 
-1. Click **Deploy with Vercel** above, or import `github.com/Caezarr/forge`.
-2. Keep the default install command: `npm install`.
-3. Keep the default build command: `npm run build`.
-4. Deploy.
+1. Click **Deploy with Vercel** above, or import `github.com/Caezarr/forge`
+2. Deploy with default settings
+3. Open the deployment URL on your phone
+4. Add to home screen via browser share menu
+5. Complete onboarding and run your first morning ritual
 
-FORGE is a static-first PWA. The optional API routes for auth/sync stay disabled unless you provide backend credentials.
+FORGE runs local-first by default. All data stays in your browser until you choose to enable sync.
 
-After deployment:
+### Optional: Enable sync
 
-1. Open the Vercel URL on your phone.
-2. Use the browser share menu to add FORGE to your home screen.
-3. Complete onboarding.
-4. Run one morning ritual and one daily protocol to confirm local storage works.
-5. Keep sync disabled until you have Turso and auth credentials ready.
-
-### Optional sync backend
-
-For the simple one-user SQLite backup, add:
+To enable cross-device sync, add these environment variables in Vercel:
 
 ```bash
-TURSO_DATABASE_URL=
-TURSO_AUTH_TOKEN=
-FORGE_SYNC_TOKEN=
-FORGE_STATE_ID=gabriel
+TURSO_DATABASE_URL=your_database_url
+TURSO_AUTH_TOKEN=your_auth_token
+FORGE_SYNC_TOKEN=your_secret_token
+FORGE_STATE_ID=your_username
 ```
 
-`FORGE_SYNC_TOKEN` protects `/api/state`. On each device, paste the same token in **Settings -> Cloud Backup**.
+After redeploying, enter your `FORGE_SYNC_TOKEN` in **Settings → Cloud Backup** on each device. For automatic sync without manual token entry, also add `NEXT_PUBLIC_FORGE_SYNC_TOKEN` (note: public variables are visible in the browser bundle).
 
-If you want the deployed PWA to sync without manually entering the token on each device, also set:
-
-```bash
-NEXT_PUBLIC_FORGE_SYNC_TOKEN=
-```
-
-This is convenient for a solo private app, but remember that `NEXT_PUBLIC_*` values are visible to the browser bundle. Without these variables, the app still builds and runs local-first.
-
-When sync is enabled, the intended flow is:
-
-1. The PWA writes changes locally first.
-2. Completed tasks and profile updates are saved to `localStorage`.
-3. The app pushes the full profile JSON to `/api/state`.
-4. Other clients pull the latest state and update their local view.
-
-This is the path that will later support reliable multi-device updates.
-
-## Local development
+## Local Development
 
 ```bash
 git clone https://github.com/Caezarr/forge.git
@@ -100,13 +76,9 @@ npm install
 npm run dev
 ```
 
-Open [localhost:3000](http://localhost:3000).
+Open [localhost:3000](http://localhost:3000). The app works fully offline—no database setup required.
 
-`npm run dev` uses webpack because the current Next 16 Turbopack dev server can corrupt the React Client Manifest on this app. If you want to test Turbopack explicitly:
-
-```bash
-npm run dev:turbo
-```
+**Note:** `npm run dev` uses webpack. For Turbopack testing, run `npm run dev:turbo`.
 
 ## Scripts
 
