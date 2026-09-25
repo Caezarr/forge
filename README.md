@@ -105,6 +105,10 @@ When the core app is ready, the likely path is a `/display` route first, then Ra
 - localStorage-first persistence
 - PWA manifest + service worker
 
+## Contributing
+
+Contributions are welcome! Please read our [Code of Conduct](CODE_OF_CONDUCT.md) before participating in this project.
+
 ## License
 
 MIT
