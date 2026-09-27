@@ -109,6 +109,8 @@ When the core app is ready, the likely path is a `/display` route first, then Ra
 
 Contributions are welcome! Please read our [Code of Conduct](CODE_OF_CONDUCT.md) before participating in this project.
 
+For deployment help and troubleshooting, see [SUPPORT.md](SUPPORT.md).
+
 ## License
 
 MIT
