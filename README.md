@@ -65,6 +65,8 @@ FORGE_SYNC_TOKEN=your_secret_token
 FORGE_STATE_ID=your_username
 ```
 
+For local development, copy `.env.example` to `.env.local` and replace placeholder values with your actual credentials.
+
 After redeploying, enter your `FORGE_SYNC_TOKEN` in **Settings → Cloud Backup** on each device. For automatic sync without manual token entry, also add `NEXT_PUBLIC_FORGE_SYNC_TOKEN` (note: public variables are visible in the browser bundle).
 
 ## Local Development

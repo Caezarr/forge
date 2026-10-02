@@ -45,7 +45,7 @@ npm run lint      # run ESLint
 
 ### Local Development with Sync
 
-To test sync functionality locally, create a `.env.local` file with your Turso credentials:
+To test sync functionality locally, copy `.env.example` to `.env.local` and replace placeholder values with your Turso credentials:
 
 ```bash
 TURSO_DATABASE_URL=libsql://your-database.turso.io
