@@ -8,3 +8,25 @@ Local-first Life OS with a personal coach for morning execution, clean living, a
 - Contributing: /CONTRIBUTING.md
 - Security: /SECURITY.md
 - Protocol: /docs/PROTOCOL.md
+- Operator guide: /docs/OPERATOR.md
+
+## Module Map
+
+### Morning Execution
+- Morning ritual logic: /src/lib/morning.ts
+- Morning UI: /src/components/MorningView.tsx
+- Coach intelligence: /src/lib/coach.ts
+
+### Habits (Clean Living)
+- Clean quests UI: /src/components/CleanView.tsx
+- Quest tracking: /src/components/TodayView.tsx
+
+### Training & Skills
+- Skills tracking: /src/components/SkillsView.tsx
+- Skill builder: /src/components/SkillBuilder.tsx
+- Quest builder: /src/components/QuestBuilder.tsx
+- Progression system: /src/lib/progression.ts
+
+### Focus
+- Focus UI: /src/components/FocusView.tsx
+- Review system: /src/components/ReviewView.tsx
