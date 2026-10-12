@@ -19,4 +19,6 @@ npm run build
 
 ## Pull requests
 
+All PRs must pass CI (lint + typecheck + build) before merge.
+
 Describe the habit / UX problem you are fixing and how to verify it locally.
