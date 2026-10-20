@@ -20,6 +20,14 @@ updates:
         update-types:
           - "minor"
           - "patch"
+      # next and eslint-config-next ship in lockstep; one PR instead of two.
+      next:
+        patterns:
+          - "next"
+          - "eslint-config-next"
+        update-types:
+          - "minor"
+          - "patch"
   - package-ecosystem: github-actions
     directory: "/"
     schedule:
