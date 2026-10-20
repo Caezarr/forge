@@ -8,6 +8,26 @@ updates:
     open-pull-requests-limit: 5
     labels:
       - dependencies
+    groups:
+      # react and react-dom must move together: a lone react-dom bump fails
+      # npm ERESOLVE (peer react@^x.y.z) and leaves a red PR behind.
+      react:
+        patterns:
+          - "react"
+          - "react-dom"
+          - "@types/react"
+          - "@types/react-dom"
+        update-types:
+          - "minor"
+          - "patch"
+      # next and eslint-config-next ship in lockstep; one PR instead of two.
+      next:
+        patterns:
+          - "next"
+          - "eslint-config-next"
+        update-types:
+          - "minor"
+          - "patch"
   - package-ecosystem: github-actions
     directory: "/"
     schedule:
