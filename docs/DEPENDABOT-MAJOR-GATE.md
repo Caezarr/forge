@@ -21,7 +21,7 @@ Track the live Dependabot PRs on the repo (React types, ESLint 10, Next patch/mi
 
 | Package | Decision | Notes |
 |---|---|---|
-| _(fill as you triage)_ | | |
+| `typescript` 6.0.3 → 7.0.2 | **blocked** (draft) | `npx tsc --noEmit` and `next build` (Next 16.4.0) succeed. `npm run lint` fails because `eslint-config-next@16.4.0` loads `typescript-eslint@8.70.0`, which throws on TypeScript major ≥ 7 (`peer typescript: ">=4.8.4 <6.1.0"`). Latest stable `typescript-eslint@8.71.2` and canary `8.71.3-alpha.7` still declare that peer range. Unblock when typescript-eslint ships TypeScript ≥ 7.1 support ([typescript-eslint#10940](https://github.com/typescript-eslint/typescript-eslint/issues/10940)) and `eslint-config-next` consumes that release. Do not use the TS 6 + TS 7 npm-alias workaround. GitHub Actions v7 (#55, #56) is already on `main`. |
 
 ## Related
 
