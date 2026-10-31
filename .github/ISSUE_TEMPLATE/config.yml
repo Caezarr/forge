@@ -1,0 +1,8 @@
+blank_issues_enabled: true
+contact_links:
+  - name: Security vulnerability
+    url: https://github.com/Caezarr/forge/security/advisories/new
+    about: Report security issues (auth, user data) privately via GitHub Security Advisories, not in a public issue.
+  - name: Operator guide
+    url: https://github.com/Caezarr/forge/blob/main/docs/OPERATOR.md
+    about: Setup, database migrations and day-to-day operation are documented here.
