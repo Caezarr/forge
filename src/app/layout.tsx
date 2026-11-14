@@ -13,7 +13,7 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  metadataBase: new URL("https://forge-app.vercel.app"),
+  metadataBase: new URL("https://forge-czr.vercel.app"),
   title: {
     default: "FORGE - Daily Protocol",
     template: "%s - FORGE",
@@ -42,7 +42,7 @@ export const metadata: Metadata = {
     title: "FORGE - Daily Protocol",
     description:
       "A local-first protocol for the day you said you would live.",
-    url: "https://forge-app.vercel.app",
+    url: "https://forge-czr.vercel.app",
     type: "website",
     siteName: "FORGE",
     locale: "en_US",
@@ -94,7 +94,7 @@ export default function RootLayout({
     name: "FORGE",
     description:
       "Local-first daily discipline protocol for quests, clean living, progression, and Apple Focus setup.",
-    url: "https://forge-app.vercel.app",
+    url: "https://forge-czr.vercel.app",
     applicationCategory: "ProductivityApplication",
     operatingSystem: "Web, iOS, Android",
     offers: {

@@ -7,6 +7,6 @@ export default function robots(): MetadataRoute.Robots {
       allow: "/",
       disallow: ["/api/"],
     },
-    sitemap: "https://forge-app.vercel.app/sitemap.xml",
+    sitemap: "https://forge-czr.vercel.app/sitemap.xml",
   };
 }
