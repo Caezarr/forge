@@ -1,140 +1,89 @@
 # FORGE
 
-**Problem:** habit trackers count checkmarks; they do not tell you what to do *this morning*, adapt when you slept badly, or progress your training without a coach. Most also need an account and a server before they are useful.
+A local-first PWA that turns your morning and your day into one executable protocol, with all the rules running in your browser.
 
-**FORGE** is a local-first PWA that turns the first 45 minutes of the day, daily quests, training targets, clean-living habits and deep work into one daily protocol. All rules (quest generation, scoring, streaks, progressive overload, morning-ritual modes) run in the browser as pure, unit-tested TypeScript. No account, database or network is required; cloud backup is opt-in.
+## The problem
 
-- **Run it:** `npm install && npm run dev`
-- **Test it:** `npm test` (Vitest, domain logic) · `npm run lint` · `npm run typecheck`
-- **How it works:** [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md) (5-minute read, with diagram)
+Habit apps count checkmarks and streaks. They do not tell you what to do this morning, adapt when you slept badly, or raise a training target when you are ready for it. They also tend to need an account and a server before they are useful, which means your daily behaviour data lives on someone else's machine. I wanted a tool that drives the first hour of the day and then the rest of it, and keeps the data on my device.
 
-[![Deploy with Vercel](https://vercel.com/button)](https://vercel.com/new/clone?repository-url=https%3A%2F%2Fgithub.com%2FCaezarr%2Fforge)
+## How FORGE addresses it
 
-## What It Does
+- **A protocol, not a tracker.** A readiness check picks a morning mode (`push`, `normal`, `grounded`, `minimum`, `recovery`) and a sequence of timed ritual blocks. The day is generated as main, side and clean quests, scored and turned into XP and a streak.
+- **Progression from history.** Skill targets (bodyweight, running, deep work, reading, custom) move toward your goal over about 12 weeks, scaled by your last-7-day completion, with a deload every fourth week and a volume drop on plateaus.
+- **Local-first by construction.** The profile lives in `localStorage`. No account, database or network is needed. Cloud backup is opt-in and the server is never the source of truth.
+- **Pure, tested domain layer.** Quest generation, scoring, streaks and progression are deterministic TypeScript functions of the profile and the clock. ESLint rejects any import of storage, platform, server, React or Next from `src/lib/domain`.
 
-- **Morning Ritual OS** — adaptive 45 minute launch protocol with readiness check, sequential timer, ritual blocks, and recovery/minimum variants.
-- **Daily protocol** — main quests, side quests, clean quests, XP, streaks, and a weighted score.
-- **Skill progression** — enter your current level and target for bodyweight, running, deep work, reading, and custom skills.
-- **Clean living** — track distractions and integrity habits without pretending the browser can block native apps.
-- **Focus setup** — practical Apple Screen Time, Focus Mode, and Shortcuts recipe for real app blocking outside the PWA.
-- **Proof loop** — heatmaps, weekly review, progress stats, and local history.
-- **Coach-ready intelligence layer** — a local coach contract is in place so an API coach can later generate rituals, reviews, adjustments, and live nudges without breaking offline use.
-- **Local-first** — works without auth, database, or backend. Optional sync scaffolding can be enabled later.
+Details, with a diagram: [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md).
 
-## Life OS Vision
+## Try it
 
-FORGE is meant to become more than a habit tracker. The goal is a personal operating system that can:
-
-- **Observe your real loop** — morning readiness, quests, clean score, focus sessions, training progress, missed tasks, streaks, and weekly patterns.
-- **Coach in context** — suggest the next action based on the current day instead of generic advice.
-- **Adapt the plan live** — switch from push mode to recovery mode, compress a ritual when time is short, or move unfinished work into a realistic fallback.
-- **Create accountability** — show what was promised, what was done, what slipped, and what needs to change tomorrow.
-- **Bridge self-improvement domains** — discipline, sport, work, recovery, learning, sleep hygiene, and personal development in one daily protocol.
-- **Stay private by default** — local-first data remains the baseline; cloud sync and AI coaching should be optional layers, not requirements.
-
-The coach should feel like a calm operator: direct, specific, and useful in the moment. Not a chatbot bolted onto a todo list.
-
-## Product Direction
-
-FORGE is designed to grow into a personal Life OS:
-
-- **Morning command center** — wake up, run the ritual, see the day's tasks, then start the first deep-work action.
-- **Multi-device sync** — complete or update a task on one device and see it on the PWA and phone.
-- **Live coach layer** — daily planning, weekly review, training adjustment, recovery nudges, and personal-development feedback based on actual logged behavior.
-- **Alarm and routine hooks** — wake-up flow, reminders, focus mode, and automation integrations without making the app cloud-dependent by default.
-- **Later room display** — once the PWA is solid, a Raspberry Pi or ESP32 screen can become a glanceable wall display for today's protocol.
-
-## Quick Deploy
-
-Deploy FORGE to Vercel in one click—no environment variables required.
-
-1. Click **Deploy with Vercel** above, or import `github.com/Caezarr/forge`
-2. Deploy with default settings
-3. Open the deployment URL on your phone
-4. Add to home screen via browser share menu
-5. Complete onboarding and run your first morning ritual
-
-FORGE runs local-first by default. All data stays in your browser until you choose to enable sync.
-
-### Optional: Enable sync
-
-To enable cross-device sync, add these environment variables in Vercel:
-
-```bash
-TURSO_DATABASE_URL=your_database_url
-TURSO_AUTH_TOKEN=your_auth_token
-FORGE_SYNC_TOKEN=your_secret_token
-FORGE_STATE_ID=your_username
-```
-
-For local development, copy `.env.example` to `.env.local` and replace placeholder values with your actual credentials.
-
-After redeploying, enter your `FORGE_SYNC_TOKEN` in **Settings → Cloud Backup** on each device. For automatic sync without manual token entry, also add `NEXT_PUBLIC_FORGE_SYNC_TOKEN` (note: public variables are visible in the browser bundle).
-
-## Local Development
+Needs Node.js 20.9+ (tested with 22; CI uses the current LTS).
 
 ```bash
 git clone https://github.com/Caezarr/forge.git
 cd forge
-npm install
+npm ci
 npm run dev
 ```
 
-Open [localhost:3000](http://localhost:3000). The app works fully offline—no database setup required.
+Expected output:
 
-**Note:** `npm run dev` uses webpack. For Turbopack testing, run `npm run dev:turbo`.
+```
+▲ Next.js 16.4.6 (webpack)
+- Local:         http://localhost:3000
+✓ Ready in ...
+```
 
-## Scripts
+Open <http://localhost:3000>, complete onboarding, then run the morning ritual. No environment variables or database are needed; everything is stored in your browser.
+
+To check the rules without the UI:
 
 ```bash
-npm run dev       # stable local dev server
-npm run dev:turbo # experimental Turbopack dev server
-npm run build     # production build
-npm run start     # production server
-npm run lint      # eslint (includes the domain-layer import boundary)
-npm run typecheck # tsc --noEmit, strict mode
-npm test          # vitest: scoring, progression, profile lifecycle, migrations
+npm test
 ```
 
-## Project Layout
-
 ```
-src/
-  app/            Next.js App Router: page.tsx (state owner) + api/state, api/sync, api/auth
-  components/     React views (Morning, Today, Proof, Skills, Clean, Focus, Review, builders)
-  lib/domain/     pure rules: types, quests, scoring, progression, morning, coach, stats
-  lib/storage/    localStorage profile store + optional /api/state sync client
-  lib/platform/   browser APIs: haptics, notifications, service worker
-  lib/server/     Auth.js + Drizzle/libSQL (server only)
-tests/domain/     Vitest unit tests (no browser, no network)
+ ✓ tests/domain/scoring.test.ts (2 tests)
+ ✓ tests/domain/progression.test.ts (6 tests)
+ ✓ tests/domain/profile.test.ts (8 tests)
+
+ Test Files  3 passed (3)
+      Tests  16 passed (16)
 ```
 
-## Later: Wall Display
+## How it works
 
-The wall display is intentionally not the first milestone. FORGE should be excellent on Vercel and mobile PWA before custom hardware work starts.
+| Layer | Path | Role |
+|---|---|---|
+| Domain | `src/lib/domain` | Pure rules: types, quests, scoring, progression, morning ritual, coach contract, stats |
+| Storage | `src/lib/storage` | `localStorage` profile store with schema migration on read; optional sync client |
+| Platform | `src/lib/platform` | Haptics, notifications, service worker |
+| Server | `src/lib/server`, `src/app/api` | Optional: Auth.js, Drizzle + libSQL (Turso), `/api/state` backup |
+| UI | `src/app`, `src/components` | React 19 views; `page.tsx` owns the `UserProfile` state |
 
-When the core app is ready, the likely path is a `/display` route first, then Raspberry Pi kiosk mode, and only then a smaller ESP32 companion screen if the experience benefits from dedicated hardware.
+Every change is written to `localStorage` immediately, then pushed to `/api/state` after a 1.2 s debounce if a sync token is set. Day score is 50% main, 15% side, 35% clean quests; a day counts toward the streak at a score of 50 or more. To enable backup, see [docs/OPERATOR.md](docs/OPERATOR.md) and `.env.example`.
 
-## Stack
+## Limits and status
 
-- Next.js 16 App Router
-- React 19
-- TypeScript
-- Tailwind CSS 4
-- localStorage-first persistence
-- PWA manifest + service worker
+Version 0.1.0, built for personal use.
 
-## Documentation
+- Dates are UTC, so "today" rolls over at UTC midnight, not local midnight.
+- `/api/state` stores one profile per deployment behind a shared bearer token. Conflict resolution is whole-document last-writer-wins. It is not multi-tenant.
+- `/api/sync` (per-user relational sync behind Google sign-in) exists but the UI does not call it yet.
+- The coach is only a local contract; no AI coach is wired in.
+- A browser cannot block native apps. The Focus view gives an Apple Screen Time / Focus / Shortcuts recipe instead.
 
-- **[Architecture](docs/ARCHITECTURE.md)** — layers, data model, daily loop, sync design and known limitations
-- **[Operator Guide](docs/OPERATOR.md)** — environment variables, local setup, database migrations, and deployment checklist
+## Development
 
-## Contributing
+```bash
+npm test           # Vitest, domain logic (no browser, no network)
+npm run lint       # ESLint, including the domain import boundary
+npm run typecheck  # tsc --noEmit, strict
+npm run build      # production build
+```
 
-Contributions are welcome! Please read our [Code of Conduct](CODE_OF_CONDUCT.md) before participating in this project.
-
-For deployment help and troubleshooting, see [SUPPORT.md](SUPPORT.md).
+CI runs lint, typecheck, tests and build on every pull request. See [docs/PROTOCOL.md](docs/PROTOCOL.md) for the protocol itself and [CONTRIBUTING.md](CONTRIBUTING.md) to contribute.
 
 ## License
 
-MIT
+MIT. See [LICENSE](LICENSE).
