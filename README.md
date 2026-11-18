@@ -1,5 +1,10 @@
 # FORGE
 
+[![CI](https://github.com/Caezarr/forge/actions/workflows/ci.yml/badge.svg)](https://github.com/Caezarr/forge/actions/workflows/ci.yml)
+[![TypeScript: strict](https://img.shields.io/badge/TypeScript-strict-3178C6.svg)](tsconfig.json)
+[![Next.js 16](https://img.shields.io/badge/Next.js-16-000000.svg)](package.json)
+[![local-first](https://img.shields.io/badge/data-local--first-2ea44f.svg)](docs/ARCHITECTURE.md)
+
 A local-first PWA that turns your morning and your day into one executable protocol, with all the rules running in your browser.
 
 ## The problem
