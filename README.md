@@ -1,10 +1,12 @@
 # FORGE
 
-Local-first Life OS with a personal coach for morning execution, clean living, and personal progression.
+**Problem:** habit trackers count checkmarks; they do not tell you what to do *this morning*, adapt when you slept badly, or progress your training without a coach. Most also need an account and a server before they are useful.
 
-FORGE turns the first 45 minutes of the day, daily quests, training targets, clean habits, and deep work into one operating instrument. It starts as a private PWA that runs on your phone with no account required. The immediate goal is simple: deploy fast, install on mobile, and make the daily loop feel reliable enough to use every morning.
+**FORGE** is a local-first PWA that turns the first 45 minutes of the day, daily quests, training targets, clean-living habits and deep work into one daily protocol. All rules (quest generation, scoring, streaks, progressive overload, morning-ritual modes) run in the browser as pure, unit-tested TypeScript. No account, database or network is required; cloud backup is opt-in.
 
-The long-term vision is a real Life OS: a system that follows what you do, understands your rituals, adapts the plan when the day changes, and coaches you toward the next right action without shame or fake motivation.
+- **Run it:** `npm install && npm run dev`
+- **Test it:** `npm test` (Vitest, domain logic) · `npm run lint` · `npm run typecheck`
+- **How it works:** [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md) (5-minute read, with diagram)
 
 [![Deploy with Vercel](https://vercel.com/button)](https://vercel.com/new/clone?repository-url=https%3A%2F%2Fgithub.com%2FCaezarr%2Fforge)
 
@@ -89,7 +91,22 @@ npm run dev       # stable local dev server
 npm run dev:turbo # experimental Turbopack dev server
 npm run build     # production build
 npm run start     # production server
-npm run lint      # eslint
+npm run lint      # eslint (includes the domain-layer import boundary)
+npm run typecheck # tsc --noEmit, strict mode
+npm test          # vitest: scoring, progression, profile lifecycle, migrations
+```
+
+## Project Layout
+
+```
+src/
+  app/            Next.js App Router: page.tsx (state owner) + api/state, api/sync, api/auth
+  components/     React views (Morning, Today, Proof, Skills, Clean, Focus, Review, builders)
+  lib/domain/     pure rules: types, quests, scoring, progression, morning, coach, stats
+  lib/storage/    localStorage profile store + optional /api/state sync client
+  lib/platform/   browser APIs: haptics, notifications, service worker
+  lib/server/     Auth.js + Drizzle/libSQL (server only)
+tests/domain/     Vitest unit tests (no browser, no network)
 ```
 
 ## Later: Wall Display
@@ -109,6 +126,7 @@ When the core app is ready, the likely path is a `/display` route first, then Ra
 
 ## Documentation
 
+- **[Architecture](docs/ARCHITECTURE.md)** — layers, data model, daily loop, sync design and known limitations
 - **[Operator Guide](docs/OPERATOR.md)** — environment variables, local setup, database migrations, and deployment checklist
 
 ## Contributing
