@@ -1,11 +1,11 @@
 'use client';
 
 import { useEffect, useMemo, useState } from 'react';
-import { MorningReadiness, MorningRitualLog, ReadinessMood, RitualBlock, UserProfile } from '@/lib/types';
-import { completeRitual, createMorningRitual, getMorningStats, ritualModeLabel, updateRitualBlock } from '@/lib/morning';
-import { getTodayMorningRitual, saveMorningRitual } from '@/lib/store';
-import { LocalMorningCoach, MORNING_COACH_CONTRACT } from '@/lib/coach';
-import { hapticLight, hapticSuccess } from '@/lib/haptics';
+import { MorningReadiness, MorningRitualLog, ReadinessMood, RitualBlock, UserProfile } from '@/lib/domain/types';
+import { completeRitual, createMorningRitual, getMorningStats, ritualModeLabel, updateRitualBlock } from '@/lib/domain/morning';
+import { getTodayMorningRitual, saveMorningRitual } from '@/lib/domain/profile';
+import { LocalMorningCoach, MORNING_COACH_CONTRACT } from '@/lib/domain/coach';
+import { hapticLight, hapticSuccess } from '@/lib/platform/haptics';
 
 interface Props {
   profile: UserProfile;

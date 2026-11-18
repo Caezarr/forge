@@ -1,6 +1,6 @@
 'use client';
 
-import { UserProfile } from './types';
+import { UserProfile } from '../domain/types';
 
 const STATE_SYNC_TOKEN_KEY = 'forge_sync_token';
 const STATE_SYNC_UPDATED_AT_KEY = 'forge_state_updated_at';

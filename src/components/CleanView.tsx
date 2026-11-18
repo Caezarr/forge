@@ -1,8 +1,8 @@
 'use client';
 
-import { UserProfile } from '@/lib/types';
-import { getTodayLog } from '@/lib/store';
-import { hapticLight, hapticSuccess } from '@/lib/haptics';
+import { UserProfile } from '@/lib/domain/types';
+import { getTodayLog } from '@/lib/domain/profile';
+import { hapticLight, hapticSuccess } from '@/lib/platform/haptics';
 
 interface Props {
   profile: UserProfile;

@@ -71,7 +71,7 @@ npm run db:studio    # open Drizzle Studio UI
 
 ### Migration Workflow
 
-1. Make schema changes in `src/lib/db/schema.ts`
+1. Make schema changes in `src/lib/server/db/schema.ts`
 2. Generate migration: `npm run db:generate`
 3. Review generated SQL in `drizzle/` directory
 4. Apply migration: `npm run db:migrate`

@@ -1,7 +1,7 @@
 'use client';
 
 import { useState } from 'react';
-import { DayLog } from '@/lib/types';
+import { DayLog } from '@/lib/domain/types';
 
 interface HeatmapProps {
   data: { date: string; score: number }[];

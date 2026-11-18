@@ -45,3 +45,7 @@ next-env.d.ts
 .claude/
 CLAUDE.md
 AGENTS.md
+
+# local sqlite (CI build / drizzle dev)
+*.db
+*.db-journal

@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { eq, sql } from 'drizzle-orm';
-import { db } from '@/lib/db/client';
-import { appState } from '@/lib/db/schema';
+import { db } from '@/lib/server/db/client';
+import { appState } from '@/lib/server/db/schema';
 
 const STATE_ID = process.env.FORGE_STATE_ID || 'gabriel';
 

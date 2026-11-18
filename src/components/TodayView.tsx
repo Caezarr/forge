@@ -1,9 +1,9 @@
 'use client';
 
 import { useState } from 'react';
-import { UserProfile, Quest, LIFE_DOMAINS, LifeDomainId } from '@/lib/types';
-import { getTodayLog } from '@/lib/store';
-import { hapticLight, hapticSuccess } from '@/lib/haptics';
+import { UserProfile, Quest, LIFE_DOMAINS, LifeDomainId } from '@/lib/domain/types';
+import { getTodayLog } from '@/lib/domain/profile';
+import { hapticLight, hapticSuccess } from '@/lib/platform/haptics';
 
 interface Props {
   profile: UserProfile;

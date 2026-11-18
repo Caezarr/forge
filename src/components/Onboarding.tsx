@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useEffect, useRef } from 'react';
-import { OnboardingData, SkillLevel, SkillId, RunningTestType, Intensity, Poison, PRESET_SKILLS, LifeDomainId, LIFE_DOMAINS } from '@/lib/types';
+import { OnboardingData, SkillLevel, SkillId, RunningTestType, Intensity, Poison, PRESET_SKILLS, LifeDomainId, LIFE_DOMAINS } from '@/lib/domain/types';
 
 interface Props {
   onComplete: (data: OnboardingData) => void;

@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { auth } from '@/lib/auth';
-import { db } from '@/lib/db/client';
-import { userProfiles, skills, questTemplates, dayLogs, questEntries } from '@/lib/db/schema';
+import { auth } from '@/lib/server/auth';
+import { db } from '@/lib/server/db/client';
+import { userProfiles, skills, questTemplates, dayLogs, questEntries } from '@/lib/server/db/schema';
 import { eq, and, gte } from 'drizzle-orm';
 
 export async function GET(req: NextRequest) {

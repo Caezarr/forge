@@ -1,8 +1,8 @@
 'use client';
 
 import { useState } from 'react';
-import { QuestTemplate, SkillType, UserProfile } from '@/lib/types';
-import { addQuestTemplate, updateQuestTemplate, removeQuestTemplate } from '@/lib/store';
+import { QuestTemplate, SkillType, UserProfile } from '@/lib/domain/types';
+import { addQuestTemplate, updateQuestTemplate, removeQuestTemplate } from '@/lib/domain/profile';
 
 interface Props {
   profile: UserProfile;
