@@ -7,6 +7,7 @@ import {
   RitualMode,
   UserProfile,
 } from './types';
+import { todayKey } from './dates';
 
 export interface ReadinessInput {
   sleep: number;
@@ -112,10 +113,6 @@ const fullRitual: BlockTemplate[] = [
 ];
 
 const compactBlocks: RitualBlockKind[] = ['wake', 'hydrate', 'breath', 'mobility', 'planning', 'prime'];
-
-function todayKey(): string {
-  return new Date().toISOString().slice(0, 10);
-}
 
 function clamp(value: number, min: number, max: number): number {
   return Math.min(max, Math.max(min, value));
