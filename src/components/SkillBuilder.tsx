@@ -1,8 +1,8 @@
 'use client';
 
 import { useState } from 'react';
-import { SkillLevel, SkillType, SkillCategory, UserProfile } from '@/lib/types';
-import { addSkill, updateSkill, removeSkill } from '@/lib/store';
+import { SkillLevel, SkillType, SkillCategory, UserProfile } from '@/lib/domain/types';
+import { addSkill, updateSkill, removeSkill } from '@/lib/domain/profile';
 import { v4 as uuid } from 'uuid';
 
 interface Props {

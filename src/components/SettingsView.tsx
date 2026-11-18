@@ -1,21 +1,21 @@
 'use client';
 
 import { useState } from 'react';
-import { UserProfile } from '@/lib/types';
+import { UserProfile } from '@/lib/domain/types';
 import {
   NotificationSettings,
   getNotificationSettings,
   saveNotificationSettings,
   requestNotificationPermission,
   registerServiceWorker,
-} from '@/lib/notifications';
+} from '@/lib/platform/notifications';
 import {
   getStateSyncStatus,
   getStateSyncToken,
   getStateSyncUpdatedAt,
   pushStateProfile,
   setStateSyncToken,
-} from '@/lib/state-sync';
+} from '@/lib/storage/state-sync';
 
 interface Props {
   profile: UserProfile;

@@ -1,5 +1,3 @@
-'use client';
-
 import { UserProfile, DayLog } from './types';
 
 interface PatternInsight {
@@ -208,28 +206,6 @@ export function getDailyBreakdown(profile: UserProfile, days: number = 7): {
     } else {
       result.push({ date: key, dayName, monkScore: 0, mainDone: 0, mainTotal: 0, sideDone: 0, sideTotal: 0, cleanDone: 0, cleanTotal: 0, xp: 0 });
     }
-  }
-  return result;
-}
-
-export function getSkillProgressData(profile: UserProfile, skillLabel: string, days: number = 30): {
-  date: string;
-  completed: boolean;
-  target: number;
-}[] {
-  const result = [];
-  const d = new Date();
-  for (let i = days - 1; i >= 0; i--) {
-    const date = new Date(d);
-    date.setDate(date.getDate() - i);
-    const key = date.toISOString().slice(0, 10);
-    const log = profile.logs[key];
-    const quest = log?.quests.find(q => q.label.toLowerCase().includes(skillLabel.toLowerCase()) && q.type === 'main');
-    result.push({
-      date: key,
-      completed: quest?.done || false,
-      target: quest?.target || 0,
-    });
   }
   return result;
 }

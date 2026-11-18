@@ -1,9 +1,9 @@
 'use client';
 
-import { UserProfile } from '@/lib/types';
-import { getWeeklyStats } from '@/lib/store';
-import { detectPatterns, getWeekComparison, getDailyBreakdown } from '@/lib/analytics';
-import { getMorningStats } from '@/lib/morning';
+import { UserProfile } from '@/lib/domain/types';
+import { getWeeklyStats } from '@/lib/domain/stats';
+import { detectPatterns, getWeekComparison, getDailyBreakdown } from '@/lib/domain/analytics';
+import { getMorningStats } from '@/lib/domain/morning';
 
 interface Props {
   profile: UserProfile;

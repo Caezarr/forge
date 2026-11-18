@@ -1,11 +1,12 @@
 'use client';
 
 import { useState, useEffect, useCallback, useRef } from 'react';
-import { UserProfile } from '@/lib/types';
-import { loadProfile, saveAndSync, saveProfile, createProfile, toggleQuest } from '@/lib/store';
-import { getLocalStateUpdatedAt, pullStateProfile } from '@/lib/state-sync';
-import { initNotifications } from '@/lib/notifications';
-import { registerServiceWorker } from '@/lib/notifications';
+import { UserProfile } from '@/lib/domain/types';
+import { createProfile, toggleQuest } from '@/lib/domain/profile';
+import { loadProfile, saveAndSync, saveProfile } from '@/lib/storage/profile-store';
+import { getLocalStateUpdatedAt, pullStateProfile } from '@/lib/storage/state-sync';
+import { initNotifications } from '@/lib/platform/notifications';
+import { registerServiceWorker } from '@/lib/platform/notifications';
 import BottomNav, { TabId } from '@/components/BottomNav';
 import Header from '@/components/Header';
 import Onboarding from '@/components/Onboarding';
@@ -19,8 +20,8 @@ import ReviewView from '@/components/ReviewView';
 import QuestBuilder from '@/components/QuestBuilder';
 import SkillBuilder from '@/components/SkillBuilder';
 import SettingsView from '@/components/SettingsView';
-import { hapticLight } from '@/lib/haptics';
-import type { OnboardingData } from '@/lib/types';
+import { hapticLight } from '@/lib/platform/haptics';
+import type { OnboardingData } from '@/lib/domain/types';
 
 const TAB_ORDER: TabId[] = ['morning', 'today', 'proof', 'skills', 'clean', 'focus', 'review'];
 const TAB_SET = new Set<TabId>(TAB_ORDER);

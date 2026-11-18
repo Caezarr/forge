@@ -1,5 +1,3 @@
-'use client';
-
 import { SkillLevel, DayLog } from './types';
 
 interface ProgressionContext {
@@ -141,42 +139,5 @@ export function computeTarget(ctx: ProgressionContext): { target: number; label:
   return {
     target,
     label: `${skill.name} — ${target}${suffix} ${skill.unit}`,
-  };
-}
-
-export function getProgressionInsights(skill: SkillLevel, logs: DayLog[]): {
-  completionRate7d: number;
-  completionRate30d: number;
-  isOnPlateau: boolean;
-  isDeload: boolean;
-  weekNumber: number;
-  estimatedWeeksToGoal: number;
-  trend: 'improving' | 'stable' | 'declining';
-} {
-  const history = getSkillHistory(skill.id, logs);
-  const weekNum = getWeekNumber(logs);
-  const rate7 = getRecentCompletionRate(history, 7);
-  const rate30 = getRecentCompletionRate(history, 30);
-
-  const gap = Math.max(0, skill.goal - skill.currentLevel);
-  const weeklyRate = rate7 > 0 ? Math.max(1, gap / 12) * rate7 : 0;
-  const estimatedWeeks = weeklyRate > 0 ? Math.ceil(gap / weeklyRate) : 99;
-
-  let trend: 'improving' | 'stable' | 'declining' = 'stable';
-  if (history.length >= 14) {
-    const first7 = getRecentCompletionRate(history.slice(-14, -7), 7);
-    const last7 = rate7;
-    if (last7 > first7 + 0.15) trend = 'improving';
-    else if (last7 < first7 - 0.15) trend = 'declining';
-  }
-
-  return {
-    completionRate7d: Math.round(rate7 * 100),
-    completionRate30d: Math.round(rate30 * 100),
-    isOnPlateau: detectPlateau(history),
-    isDeload: isDeloadWeek(weekNum),
-    weekNumber: weekNum,
-    estimatedWeeksToGoal: estimatedWeeks,
-    trend,
   };
 }

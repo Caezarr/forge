@@ -1,8 +1,8 @@
 'use client';
 
-import { UserProfile } from '@/lib/types';
-import { getConsistencyData } from '@/lib/store';
-import { getMorningStats } from '@/lib/morning';
+import { UserProfile } from '@/lib/domain/types';
+import { getConsistencyData } from '@/lib/domain/stats';
+import { getMorningStats } from '@/lib/domain/morning';
 import { HeatmapGreen } from './Heatmap';
 
 interface Props {

@@ -1,7 +1,7 @@
 'use client';
 
-import { UserProfile } from '@/lib/types';
-import { getTodayLog } from '@/lib/store';
+import { UserProfile } from '@/lib/domain/types';
+import { getTodayLog } from '@/lib/domain/profile';
 
 interface Props {
   profile: UserProfile;
